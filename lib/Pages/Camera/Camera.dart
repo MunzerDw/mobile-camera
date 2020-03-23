@@ -311,12 +311,6 @@ class _CameraState extends State<Camera> {
                                               color: Colors.grey,
                                               onPressed: () {
                                                 Navigator.pop(context);
-                                                showDialog(
-                                                    context: context,
-                                                    builder: (_) => AddGallery(
-                                                          addGallery:
-                                                              widget.addGallery,
-                                                        ));
                                               },
                                             ),
                                           ),
@@ -334,6 +328,12 @@ class _CameraState extends State<Camera> {
                                               color: Colors.green,
                                               onPressed: () {
                                                 Navigator.pop(context);
+                                                showDialog(
+                                                    context: context,
+                                                    builder: (_) => AddGallery(
+                                                          addGallery:
+                                                              widget.addGallery,
+                                                        ));
                                               },
                                             ),
                                           )

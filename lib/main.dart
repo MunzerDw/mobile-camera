@@ -102,7 +102,7 @@ class _HomeState extends State<Home> {
       if (prefs.getInt('defaultGalleryIndex') == null) {
         this.setDefaultGalleryIndex(0);
       } else if (prefs.getInt('defaultGalleryIndex') >
-          (this.galleries.length - 1)) {
+          (value.length - 1)) {
         this.setDefaultGalleryIndex(0);
       } else {
         this.setDefaultGalleryIndex(prefs.getInt('defaultGalleryIndex'));
