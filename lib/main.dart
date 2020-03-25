@@ -87,6 +87,12 @@ class _HomeState extends State<Home> {
     });
   }
 
+  void goToCamera(String gallery) {
+    this.setSelectedGalleryIndex(this.galleries.indexOf(gallery));
+    this.pageViewController.animateToPage(1,
+        duration: Duration(milliseconds: 200), curve: Curves.easeIn);
+  }
+
   @override
   void initState() {
     camera = widget.cameras[0];
@@ -101,8 +107,7 @@ class _HomeState extends State<Home> {
       final prefs = await SharedPreferences.getInstance();
       if (prefs.getInt('defaultGalleryIndex') == null) {
         this.setDefaultGalleryIndex(0);
-      } else if (prefs.getInt('defaultGalleryIndex') >
-          (value.length - 1)) {
+      } else if (prefs.getInt('defaultGalleryIndex') > (value.length - 1)) {
         this.setDefaultGalleryIndex(0);
       } else {
         this.setDefaultGalleryIndex(prefs.getInt('defaultGalleryIndex'));
@@ -122,10 +127,10 @@ class _HomeState extends State<Home> {
         controller: pageViewController,
         children: <Widget>[
           Galleries(
-            galleries: this.galleries,
-            addGalleryFromHome: this.addGalleryFromHome,
-            deleteGalleryFromHome: this.deleteGalleryFromHome,
-          ),
+              galleries: this.galleries,
+              addGalleryFromHome: this.addGalleryFromHome,
+              deleteGalleryFromHome: this.deleteGalleryFromHome,
+              goToCamera: this.goToCamera),
           Camera(
             camera: widget.cameras[0],
             cameraController: this.cameraController,

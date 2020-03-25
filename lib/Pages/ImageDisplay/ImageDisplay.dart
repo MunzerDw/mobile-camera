@@ -81,8 +81,10 @@ class _ImageDisplayState extends State<ImageDisplay> {
               this.toogleTopBar();
             },
             onVerticalDragEnd: this.zoomedOut
-                ? (DragDownDetails) {
-                    Navigator.pop(context);
+                ? (DragEndDetails dragEndDetails) {
+                    if (dragEndDetails.velocity.pixelsPerSecond.dy > 0) {
+                      Navigator.pop(context);
+                    }
                   }
                 : null,
             child: Container(

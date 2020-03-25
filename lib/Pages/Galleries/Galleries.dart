@@ -10,33 +10,45 @@ class Galleries extends StatefulWidget {
   final List<String> galleries;
   final Function addGalleryFromHome;
   final Function deleteGalleryFromHome;
+  final Function goToCamera;
   Galleries(
       {@required this.galleries,
       @required this.addGalleryFromHome,
-      @required this.deleteGalleryFromHome});
+      @required this.deleteGalleryFromHome,
+      @required this.goToCamera});
 
   @override
   _GalleriesState createState() => _GalleriesState();
 }
 
 class _GalleriesState extends State<Galleries> {
+  Map<String, int> galleriesToTotalImages = Map<String, int>();
+  bool update = true;
   GlobalKey<AnimatedListState> _listKey = GlobalKey();
 
   Widget _buildItem(
       BuildContext context, int index, String item, Animation animation) {
-    TextEditingController textFieldController = TextEditingController();
-    textFieldController.text = item;
+    // print(this.galleriesToTotalImages[item].toString() + " " + item);
     return index != 0
         ? Padding(
             padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
-            child: SizeTransition(
-              sizeFactor: animation,
-              axis: Axis.vertical,
+            child: SlideTransition(
+              // opacity: Tween<double>(begin: 0.0, end: 1.0).animate(animation),
+              position: Tween<Offset>(
+                begin: const Offset(1, 0),
+                end: Offset.zero,
+              ).animate(animation),
               child: GalleriesCard(
+                updateNumbers: this.getTotalImages,
+                totalImages: this.galleriesToTotalImages[item] == null
+                    ? 0
+                    : this.galleriesToTotalImages[item],
+                key: UniqueKey(),
                 title: item,
                 deleteGallery: this._removeItem,
                 editGallery: this._editGallery,
-                textFieldController: textFieldController,
+                goToCamera: widget.goToCamera,
+                galleries: List.from(widget.galleries),
               ),
             ),
           )
@@ -109,6 +121,23 @@ class _GalleriesState extends State<Galleries> {
       return true;
     }
     return false;
+  }
+
+  void getTotalImages() {
+    for (String gallery in widget.galleries) {
+      Storage.getImages(gallery).then((onValue) {
+        setState(() {
+          galleriesToTotalImages.remove(gallery);
+          galleriesToTotalImages.putIfAbsent(gallery, () => onValue.length);
+        });
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    this.getTotalImages();
+    super.initState();
   }
 
   @override

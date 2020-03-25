@@ -83,31 +83,85 @@ class Storage {
       String oldGallery, String newGallery) async {
     final Directory _appDocDir = await getApplicationDocumentsDirectory();
     List<String> currentGalleries = await Storage.getGalleries();
+
     if (!currentGalleries.contains(oldGallery)) {
       return false;
     }
+    if (oldGallery == newGallery) {
+      return true;
+    }
 
     List<File> imagesToMove = List<File>();
-    Directory(_appDocDir.path + "/galleries/" + oldGallery)
+    return Directory(_appDocDir.path + "/galleries/" + oldGallery)
         .list(recursive: true, followLinks: false)
         .listen((FileSystemEntity entity) {
-      imagesToMove.add(entity);
-    });
+          imagesToMove.add(entity);
+        })
+        .asFuture()
+        .then((onValue) async {
+          if (!(await Storage.addGallery(newGallery))) {
+            return false;
+          }
 
-    if (!(await Storage.addGallery(newGallery))) {
+          imagesToMove.forEach((image) async {
+            String newPath = image.path.replaceAll(oldGallery, newGallery);
+            if (!(await Storage.copyImage(image, newPath))) {
+              return false;
+            }
+          });
+
+          if (!(await Storage.removeGallery(oldGallery))) {
+            return false;
+          }
+          return true;
+        })
+        .catchError((onError) {
+          return false;
+        });
+  }
+
+  static Future<bool> moveImages(
+      String from, String to, List<String> images) async {
+    final Directory _appDocDir = await getApplicationDocumentsDirectory();
+    List<String> currentGalleries = await Storage.getGalleries();
+
+    if (!currentGalleries.contains(from) || !currentGalleries.contains(to)) {
+      return false;
+    }
+    if (from == to) {
+      return false;
+    }
+    if (images.isEmpty) {
       return false;
     }
 
-    imagesToMove.forEach((image) async {
-      String newPath = image.path.replaceAll(oldGallery, newGallery);
-      if (!(await Storage.copyImage(image, newPath))) {
-        return false;
-      }
-    });
+    List<File> imagesToMoveAsFiles = List<File>();
+    return Directory(_appDocDir.path + "/galleries/" + from)
+        .list(recursive: true, followLinks: false)
+        .listen((FileSystemEntity entity) {
+          if (images.contains(entity.path)) {
+            imagesToMoveAsFiles.add(entity);
+          }
+        })
+        .asFuture()
+        .then((onValue) {
+          imagesToMoveAsFiles.forEach((image) async {
+            String newPath = image.path.replaceAll(from, to);
+            if (!(await Storage.copyImage(image, newPath))) {
+              return false;
+            }
+          });
 
-    if (!(await Storage.removeGallery(oldGallery))) {
-      return false;
-    }
-    return true;
+          images.forEach((image) async {
+            if (!(await Storage.removeImage(image))) {
+              return false;
+            }
+          });
+
+          return true;
+        })
+        .catchError((onError) {
+          return false;
+        });
   }
 }

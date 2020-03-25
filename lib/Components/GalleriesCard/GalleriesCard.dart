@@ -10,34 +10,111 @@ class GalleriesCard extends StatefulWidget {
   final String title;
   final Function deleteGallery;
   final Function editGallery;
-  final TextEditingController textFieldController;
-
+  final Function goToCamera;
+  final List<String> galleries;
+  final int totalImages;
+  final Function updateNumbers;
   const GalleriesCard(
       {@required this.title,
+      @required this.updateNumbers,
+      @required this.totalImages,
       @required this.deleteGallery,
       @required this.editGallery,
-      @required this.textFieldController});
+      @required this.goToCamera,
+      @required this.galleries,
+      Key key})
+      : super(key: key);
 
   @override
   GalleriesCardState createState() => GalleriesCardState();
 }
 
 class GalleriesCardState extends State<GalleriesCard> {
+  TextEditingController textFieldController = TextEditingController();
   bool editing = false;
-  int totalImages = 0;
 
-  void getTotalImages() {
-    Storage.getImages(widget.title).then((onValue) {
-      setState(() {
-        totalImages = onValue.length;
-      });
-    });
+  void deleteGallery() {
+    showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+              title: Column(
+                children: <Widget>[
+                  Container(
+                    decoration: BoxDecoration(
+                      border:
+                          Border.all(width: 4.0, color: Colors.orangeAccent),
+                      shape: BoxShape.circle,
+                    ),
+                    padding: EdgeInsets.all(20),
+                    margin: EdgeInsets.only(bottom: 20.0),
+                    child: Icon(
+                      Icons.warning,
+                      color: Colors.orangeAccent,
+                      size: 50,
+                    ),
+                  ),
+                  Text(
+                    "Deleting " + widget.title,
+                    style: TextStyle(
+                        color: Colors.black87, fontWeight: FontWeight.w600),
+                  ),
+                  Text(
+                    "Are you sure you want to delete?",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600),
+                  )
+                ],
+              ),
+              content: Container(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: <Widget>[
+                    Container(
+                      child: RaisedButton(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: new BorderRadius.circular(5.0)),
+                        child: Text(
+                          "No",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        color: Colors.grey,
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ),
+                    Container(
+                      child: RaisedButton(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: new BorderRadius.circular(5.0)),
+                        child: Text(
+                          "Yes",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        color: Colors.green,
+                        onPressed: () async {
+                          if (await widget
+                              .deleteGallery(this.textFieldController.text)) {
+                            Navigator.pop(context);
+                          }
+                        },
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0)),
+            ));
   }
 
   @override
   void initState() {
+    this.textFieldController.text = widget.title;
     super.initState();
-    this.getTotalImages();
   }
 
   @override
@@ -54,23 +131,47 @@ class GalleriesCardState extends State<GalleriesCard> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20.0),
       ),
-      child: InkWell(
-        borderRadius: BorderRadius.only(
-          bottomLeft: const Radius.circular(20.0),
-          bottomRight: const Radius.circular(20.0),
-          topLeft: const Radius.circular(20.0),
-          topRight: const Radius.circular(20.0),
-        ),
+      child: GestureDetector(
+        // borderRadius: BorderRadius.only(
+        //   bottomLeft: const Radius.circular(20.0),
+        //   bottomRight: const Radius.circular(20.0),
+        //   topLeft: const Radius.circular(20.0),
+        //   topRight: const Radius.circular(20.0),
+        // ),
         onTap: () async {
           Navigator.push(
             context,
+            // PageRouteBuilder(
+            //   pageBuilder: (c, a1, a2) => GalleryDisplay(
+            //     title: widget.title,
+            //     goToCamera: widget.goToCamera,
+            //     galleries: List.of(widget.galleries),
+            //   ),
+            //   transitionsBuilder: (BuildContext context,
+            //       Animation<double> animation,
+            //       Animation<double> secondaryAnimation,
+            //       Widget child) {
+            //     return new SlideTransition(
+            //       position: new Tween<Offset>(
+            //         begin: const Offset(1.0, 0.0),
+            //         end: Offset.zero,
+            //       ).animate(animation),
+            //       child: child,
+            //     );
+            //   },
+            //   transitionDuration: Duration(milliseconds: 150),
+            // ),
             MaterialPageRoute(
               builder: (context) => GalleryDisplay(
                 title: widget.title,
-                updateTotolImagesNumber: this.getTotalImages,
+                goToCamera: widget.goToCamera,
+                galleries: List.of(widget.galleries),
               ),
             ),
-          );
+          ).then((onValue) {
+            widget.updateNumbers();
+            print("lets do it");
+          });
         },
         child: Container(
           padding: new EdgeInsets.fromLTRB(20, 40, 20, 50),
@@ -102,23 +203,23 @@ class GalleriesCardState extends State<GalleriesCard> {
                   Container(
                     width: 200,
                     decoration: BoxDecoration(
-                        border: this.editing
-                            ? Border(
-                                bottom: BorderSide(
-                                color: Colors.blueAccent,
-                                width: 1.0,
-                              ))
-                            : null),
+                        border: Border(
+                            bottom: BorderSide(
+                      color:
+                          this.editing ? Colors.blueAccent : Colors.transparent,
+                      width: 1.0,
+                    ))),
                     child: TextField(
                       autofocus: true,
-                      controller: widget.textFieldController,
+                      controller: this.textFieldController,
                       enabled: this.editing,
                       style: TextStyle(color: Colors.black, fontSize: 25),
                       decoration: InputDecoration(
                           contentPadding: const EdgeInsets.only(
                             bottom: -15,
                           ),
-                          border: InputBorder.none),
+                          border: InputBorder.none,
+                          focusedBorder: InputBorder.none),
                     ),
                   ),
                   // Text(
@@ -131,7 +232,7 @@ class GalleriesCardState extends State<GalleriesCard> {
                   // ),
                   SizedBox(height: 3),
                   Text(
-                    this.totalImages.toString() + " images",
+                    widget.totalImages.toString() + " images",
                     textAlign: TextAlign.left,
                     style: new TextStyle(
                         color: Colors.grey[400],
@@ -153,72 +254,17 @@ class GalleriesCardState extends State<GalleriesCard> {
                     minWidth: 10,
                     shape: new CircleBorder(),
                     child: IconButton(
-                      color: this.editing ? Colors.blue[800] : Colors.blue[300],
+                      color: this.editing ? Colors.blue[300] : Colors.blue[800],
                       icon: Icon(Icons.edit),
                       onPressed: () async {
                         if (editing) {
                           if (await widget.editGallery(
-                              widget.title, widget.textFieldController.text)) {
+                              widget.title, this.textFieldController.text)) {
                             setState(() {
                               editing = !editing;
                             });
                           } else {
-                            showDialog(
-                                context: context,
-                                builder: (_) => AlertDialog(
-                                    title: Column(
-                                      children: <Widget>[
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            border: Border.all(
-                                                width: 4.0,
-                                                color: Colors.orangeAccent),
-                                            shape: BoxShape.circle,
-                                          ),
-                                          padding: EdgeInsets.all(20),
-                                          margin: EdgeInsets.only(bottom: 20.0),
-                                          child: Icon(
-                                            Icons.warning,
-                                            color: Colors.orangeAccent,
-                                            size: 50,
-                                          ),
-                                        ),
-                                        Text(
-                                          "Gallery name is empty or already exists",
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                              color: Colors.orangeAccent),
-                                        ),
-                                      ],
-                                    ),
-                                    content: Container(
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceAround,
-                                        children: <Widget>[
-                                          Container(
-                                            child: RaisedButton(
-                                              shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      new BorderRadius.circular(
-                                                          5.0)),
-                                              child: Text(
-                                                "Ok",
-                                                style: TextStyle(
-                                                    color: Colors.white),
-                                              ),
-                                              color: Colors.grey,
-                                              onPressed: () {
-                                                Navigator.pop(context);
-                                              },
-                                            ),
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(8.0))));
+                            this.deleteGallery();
                           }
                         } else {
                           setState(() {
@@ -315,7 +361,8 @@ class GalleriesCardState extends State<GalleriesCard> {
                                             color: Colors.green,
                                             onPressed: () async {
                                               if (await widget.deleteGallery(
-                                                  widget.textFieldController
+                                                  this
+                                                      .textFieldController
                                                       .text)) {
                                                 Navigator.pop(context);
                                               }
