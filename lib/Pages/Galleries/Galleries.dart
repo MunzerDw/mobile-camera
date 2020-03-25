@@ -35,7 +35,7 @@ class _GalleriesState extends State<Galleries> {
             child: SlideTransition(
               // opacity: Tween<double>(begin: 0.0, end: 1.0).animate(animation),
               position: Tween<Offset>(
-                begin: const Offset(1, 0),
+                begin: const Offset(0, 1),
                 end: Offset.zero,
               ).animate(animation),
               child: GalleriesCard(
@@ -66,7 +66,9 @@ class _GalleriesState extends State<Galleries> {
   }
 
   Future<bool> _addAnItem(String gallery) async {
-    if (widget.galleries.contains(gallery) || gallery == "") {
+    if (widget.galleries.contains(gallery) ||
+        gallery == "" ||
+        gallery == "Galleries") {
       return false;
     }
     if (await widget.addGalleryFromHome(gallery)) {
@@ -100,7 +102,8 @@ class _GalleriesState extends State<Galleries> {
     int index = widget.galleries.indexOf(gallery);
     if ((widget.galleries.indexOf(newName) != index &&
             widget.galleries.contains(newName)) ||
-        newName == "") {
+        newName == "" ||
+        newName == "Galleries") {
       return false;
     }
 

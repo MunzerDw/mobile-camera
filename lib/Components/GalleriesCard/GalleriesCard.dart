@@ -170,7 +170,6 @@ class GalleriesCardState extends State<GalleriesCard> {
             ),
           ).then((onValue) {
             widget.updateNumbers();
-            print("lets do it");
           });
         },
         child: Container(
@@ -264,7 +263,62 @@ class GalleriesCardState extends State<GalleriesCard> {
                               editing = !editing;
                             });
                           } else {
-                            this.deleteGallery();
+                            showDialog(
+                                context: context,
+                                builder: (_) => AlertDialog(
+                                    title: Column(
+                                      children: <Widget>[
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                                width: 4.0,
+                                                color: Colors.orangeAccent),
+                                            shape: BoxShape.circle,
+                                          ),
+                                          padding: EdgeInsets.all(20),
+                                          margin: EdgeInsets.only(bottom: 20.0),
+                                          child: Icon(
+                                            Icons.warning,
+                                            color: Colors.orangeAccent,
+                                            size: 50,
+                                          ),
+                                        ),
+                                        Text(
+                                          "Gallery name is empty or already exists",
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                              color: Colors.orangeAccent),
+                                        ),
+                                      ],
+                                    ),
+                                    content: Container(
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceAround,
+                                        children: <Widget>[
+                                          Container(
+                                            child: RaisedButton(
+                                              shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      new BorderRadius.circular(
+                                                          5.0)),
+                                              child: Text(
+                                                "Ok",
+                                                style: TextStyle(
+                                                    color: Colors.white),
+                                              ),
+                                              color: Colors.grey,
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(8.0))));
                           }
                         } else {
                           setState(() {
@@ -289,92 +343,7 @@ class GalleriesCardState extends State<GalleriesCard> {
                       color: Colors.orange[300],
                       icon: Icon(Icons.delete),
                       onPressed: () async {
-                        showDialog(
-                            context: context,
-                            builder: (_) => AlertDialog(
-                                  title: Column(
-                                    children: <Widget>[
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          border: Border.all(
-                                              width: 4.0,
-                                              color: Colors.orangeAccent),
-                                          shape: BoxShape.circle,
-                                        ),
-                                        padding: EdgeInsets.all(20),
-                                        margin: EdgeInsets.only(bottom: 20.0),
-                                        child: Icon(
-                                          Icons.warning,
-                                          color: Colors.orangeAccent,
-                                          size: 50,
-                                        ),
-                                      ),
-                                      Text(
-                                        "Deleting " + widget.title,
-                                        style: TextStyle(
-                                            color: Colors.black87,
-                                            fontWeight: FontWeight.w600),
-                                      ),
-                                      Text(
-                                        "Are you sure you want to delete?",
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                            color: Colors.grey,
-                                            fontSize: 17,
-                                            fontWeight: FontWeight.w600),
-                                      )
-                                    ],
-                                  ),
-                                  content: Container(
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceAround,
-                                      children: <Widget>[
-                                        Container(
-                                          child: RaisedButton(
-                                            shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    new BorderRadius.circular(
-                                                        5.0)),
-                                            child: Text(
-                                              "No",
-                                              style: TextStyle(
-                                                  color: Colors.white),
-                                            ),
-                                            color: Colors.grey,
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                            },
-                                          ),
-                                        ),
-                                        Container(
-                                          child: RaisedButton(
-                                            shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    new BorderRadius.circular(
-                                                        5.0)),
-                                            child: Text(
-                                              "Yes",
-                                              style: TextStyle(
-                                                  color: Colors.white),
-                                            ),
-                                            color: Colors.green,
-                                            onPressed: () async {
-                                              if (await widget.deleteGallery(
-                                                  this
-                                                      .textFieldController
-                                                      .text)) {
-                                                Navigator.pop(context);
-                                              }
-                                            },
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8.0)),
-                                ));
+                        this.deleteGallery();
                       },
                     ),
                     onPressed: () {},
