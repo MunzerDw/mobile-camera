@@ -444,11 +444,16 @@ class _GalleryDisplayState extends State<GalleryDisplay> {
                                                                   fontSize: 20),
                                                               iconSize: 25.0,
                                                               value: widget
-                                                                  .galleries
-                                                                  .elementAt(widget
+                                                                          .galleries
+                                                                          .length >
+                                                                      0
+                                                                  ? widget
                                                                       .galleries
-                                                                      .indexOf(this
-                                                                          .selectedGallery)),
+                                                                      .elementAt(widget
+                                                                          .galleries
+                                                                          .indexOf(
+                                                                              this.selectedGallery))
+                                                                  : "",
                                                               onChanged: (String
                                                                   value) {
                                                                 setState(() {
