@@ -48,7 +48,7 @@ class Camera extends StatelessWidget {
                 return Container(
                   width: screenWidth,
                   height: screenWidth * 1.4,
-                  //Kein plan wieso hier ein border soll.. voll komisch, da ist sonst ein anderer weisser border
+                  //Kein plan wieso hier ein border soll.. voll komisch, da ist sonst ein anderer weisser border.
                   decoration: BoxDecoration(
                       border: Border(
                           bottom: BorderSide(color: Colors.black, width: 0))),
