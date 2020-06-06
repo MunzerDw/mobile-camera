@@ -133,7 +133,6 @@ class _HomeState extends State<Home> {
                   children: <Widget>[
                     Galleries(goToCamera: this.goToCamera),
                     Camera(
-                      camera: widget.cameras[0],
                       cameraController: this.cameraController,
                       initializeControllerFuture:
                           this._initializeControllerFuture,
