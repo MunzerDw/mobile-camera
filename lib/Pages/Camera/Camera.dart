@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 import 'package:App/Components/AddGallery/AddGallery.dart';
+import 'package:App/Models/GalleriesModel.dart';
+import 'package:App/Models/GalleryModel.dart';
 import 'package:App/Pages/Blink/Blink.dart';
 import 'package:App/Pages/Galleries/Galleries.dart';
 import 'package:App/Pages/ImageDisplay/ImageDisplay.dart';
@@ -11,24 +13,17 @@ import 'package:flutter/services.dart';
 import 'package:path/path.dart' show join;
 import 'package:path_provider/path_provider.dart';
 import 'package:camera/camera.dart';
+import 'package:provider/provider.dart';
 
 class Camera extends StatefulWidget {
-  final List<String> galleries;
   final CameraDescription camera;
   final CameraController cameraController;
   final Future<void> initializeControllerFuture;
-  final Function addGallery;
-  final Function setSelectedGalleryIndex;
-  final int selectedGalleryIndex;
   final PageController pageViewController;
   Camera(
       {@required this.camera,
       @required this.cameraController,
       @required this.initializeControllerFuture,
-      @required this.galleries,
-      @required this.addGallery,
-      @required this.selectedGalleryIndex,
-      @required this.setSelectedGalleryIndex,
       @required this.pageViewController});
 
   @override
@@ -36,12 +31,8 @@ class Camera extends StatefulWidget {
 }
 
 class _CameraState extends State<Camera> {
-  Map<String, String> imagesMap = Map<String, String>();
-  List<String> images = List<String>();
-
   @override
   void initState() {
-    images = imagesMap.keys.toList();
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
         // statusBarColor: Colors.transparent,
@@ -51,29 +42,11 @@ class _CameraState extends State<Camera> {
     super.initState();
   }
 
-  Future<bool> deleteImage(int index) async {
-    if (await Storage.removeImage(images.elementAt(index))) {
-      setState(() {
-        imagesMap.remove(images.elementAt(index));
-        images.removeAt(index);
-      });
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  void addImage(String image) {
-    setState(() {
-      imagesMap.putIfAbsent(
-          image, () => widget.galleries[widget.selectedGalleryIndex]);
-      images = imagesMap.keys.toList();
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
+    var galleriesModel = Provider.of<GalleriesModel>(context);
     double screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       body: Column(
         mainAxisSize: MainAxisSize.max,
@@ -91,7 +64,7 @@ class _CameraState extends State<Camera> {
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    widget.galleries.length != 0
+                    galleriesModel.getGalleries().length != 0
                         ? Container(
                             padding: EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 0),
@@ -99,24 +72,19 @@ class _CameraState extends State<Camera> {
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(10)),
                             child: DropdownButton<String>(
-                              items: widget.galleries.map((String value) {
+                              items: galleriesModel
+                                  .getGalleries()
+                                  .map((GalleryModel gallery) {
                                 return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
+                                  value: gallery.name,
+                                  child: Text(gallery.name),
                                 );
                               }).toList(),
                               onChanged: (value) {
-                                setState(() {
-                                  widget.setSelectedGalleryIndex(
-                                      widget.galleries.indexOf(value));
-                                });
+                                galleriesModel.setSelectedGallery(value);
                               },
                               underline: SizedBox(),
-                              value: widget.selectedGalleryIndex >=
-                                      widget.galleries.length
-                                  ? "Empty"
-                                  : widget
-                                      .galleries[widget.selectedGalleryIndex],
+                              value: galleriesModel.selectedGallery.name,
                               elevation: 2,
                               style: TextStyle(
                                   color: Colors.grey[600], fontSize: 20),
@@ -134,13 +102,12 @@ class _CameraState extends State<Camera> {
                                 onPressed: () {
                                   showDialog(
                                       context: context,
-                                      builder: (_) => AddGallery(
-                                            addGallery: widget.addGallery,
-                                          ));
+                                      builder: (_) => AddGallery());
                                 }),
                             onPressed: () {},
                           ),
-                    this.images.length <= 0
+                    galleriesModel.selectedGallery != null &&
+                            galleriesModel.selectedGallery.images.isEmpty
                         ? Container()
                         : FittedBox(
                             child: MaterialButton(
@@ -149,16 +116,19 @@ class _CameraState extends State<Camera> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => ImageDisplay(
-                                    index: this.images.isEmpty
+                                    index: galleriesModel
+                                            .selectedGallery.images.isEmpty
                                         ? 0
-                                        : this.images.length - 1,
-                                    deleteImageFromGallery: this.deleteImage,
-                                    imagesFromParent: this.images,
+                                        : galleriesModel
+                                                .selectedGallery.images.length -
+                                            1,
                                   ),
                                 ),
                               );
                             },
-                            child: this.images.length <= 0
+                            child: galleriesModel.selectedGallery == null ||
+                                    galleriesModel
+                                        .selectedGallery.images.isEmpty
                                 ? null
                                 : Container(
                                     width: 60,
@@ -167,8 +137,8 @@ class _CameraState extends State<Camera> {
                                         shape: BoxShape.circle,
                                         color: Colors.transparent,
                                         image: DecorationImage(
-                                            image: FileImage(
-                                                File(this.images.last)),
+                                            image: FileImage(File(galleriesModel
+                                                .selectedGallery.images.last)),
                                             fit: BoxFit.cover))),
                           ))
                   ],
@@ -240,12 +210,12 @@ class _CameraState extends State<Camera> {
                         ),
                         color: Colors.white,
                         onPressed: () async {
-                          if (widget.galleries.length > 0) {
+                          if (galleriesModel.getGalleries().length > 0) {
                             final Directory _appDocDir =
                                 await getApplicationDocumentsDirectory();
                             String path = _appDocDir.path +
                                 '/galleries/' +
-                                widget.galleries[widget.selectedGalleryIndex] +
+                                galleriesModel.selectedGallery.name +
                                 '/${DateTime.now()}.png';
                             try {
                               await widget.initializeControllerFuture;
@@ -259,7 +229,8 @@ class _CameraState extends State<Camera> {
                                 Navigator.pop(context);
                               });
                               await widget.cameraController.takePicture(path);
-                              this.addImage(path);
+                              await galleriesModel.selectedGallery
+                                  .addImage(path);
                             } catch (e) {
                               print(e);
                             }
@@ -330,10 +301,8 @@ class _CameraState extends State<Camera> {
                                                 Navigator.pop(context);
                                                 showDialog(
                                                     context: context,
-                                                    builder: (_) => AddGallery(
-                                                          addGallery:
-                                                              widget.addGallery,
-                                                        ));
+                                                    builder: (_) =>
+                                                        AddGallery());
                                               },
                                             ),
                                           )

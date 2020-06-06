@@ -2,24 +2,21 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
-import 'package:App/Components/AddGallery/AddGallery.dart';
-import 'package:App/Components/GalleriesCard/GalleriesCard.dart';
+import 'package:App/Models/GalleriesModel.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:esys_flutter_share/esys_flutter_share.dart';
+import 'package:provider/provider.dart';
 
 class ImageDisplay extends StatefulWidget {
   final int index;
   final String gallery;
-  final Function deleteImageFromGallery;
-  final List<String> imagesFromParent;
-  ImageDisplay(
-      {@required this.index,
-      this.gallery,
-      this.deleteImageFromGallery,
-      this.imagesFromParent});
+  ImageDisplay({
+    @required this.index,
+    this.gallery,
+  });
 
   @override
   _ImageDisplayState createState() => _ImageDisplayState();
@@ -72,6 +69,9 @@ class _ImageDisplayState extends State<ImageDisplay> {
     PhotoViewScaleState initialState = PhotoViewScaleState.initial;
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
+    var galleriesModel = Provider.of<GalleriesModel>(context);
+    var galleryModel = galleriesModel.getGallery(widget.gallery);
+
     return Scaffold(
         // The image is stored as a file on the device. Use the `Image.file`
         // constructor with the given path to display the image
@@ -101,8 +101,8 @@ class _ImageDisplayState extends State<ImageDisplay> {
                             currentImageIndex = newIndex;
                           });
                         },
-                        children: widget.imagesFromParent
-                            .toList()
+                        children: galleryModel
+                            .getImages()
                             .map(
                               (item) => Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -207,14 +207,17 @@ class _ImageDisplayState extends State<ImageDisplay> {
                                     onPressed: !this.topBarVisible
                                         ? null
                                         : () async {
-                                            if (widget
-                                                    .imagesFromParent.length !=
+                                            if (galleryModel
+                                                    .getImages()
+                                                    .length !=
                                                 0) {
-                                              if (widget.imagesFromParent !=
+                                              if (galleryModel.getImages() !=
                                                   null) {
-                                                if (!(await widget
-                                                    .deleteImageFromGallery(this
-                                                        .currentImageIndex))) {
+                                                if (!(await galleryModel
+                                                    .removeImage(galleryModel
+                                                        .getImages()
+                                                        .elementAt(this
+                                                            .currentImageIndex)))) {
                                                   Navigator.pop(context);
                                                   return;
                                                 }
@@ -222,22 +225,25 @@ class _ImageDisplayState extends State<ImageDisplay> {
                                             } else {
                                               Navigator.pop(context);
                                             }
-                                            if (widget
-                                                    .imagesFromParent.length !=
+                                            if (galleryModel
+                                                    .getImages()
+                                                    .length !=
                                                 0) {
                                               if (this.currentImageIndex !=
-                                                  widget.imagesFromParent
+                                                  galleryModel
+                                                      .getImages()
                                                       .length) {
                                                 setState(() {
                                                   currentImageIndex =
                                                       (this.currentImageIndex -
                                                               1) %
-                                                          widget
-                                                              .imagesFromParent
+                                                          galleryModel
+                                                              .getImages()
                                                               .length;
                                                 });
                                                 if (this.currentImageIndex ==
-                                                    widget.imagesFromParent
+                                                    galleryModel
+                                                            .getImages()
                                                             .length -
                                                         1) {
                                                   setState(() {
@@ -249,17 +255,16 @@ class _ImageDisplayState extends State<ImageDisplay> {
                                                   currentImageIndex =
                                                       (this.currentImageIndex -
                                                               1) %
-                                                          widget
-                                                              .imagesFromParent
+                                                          galleryModel
+                                                              .getImages()
                                                               .length;
                                                 });
                                               }
                                             } else {
                                               Navigator.pop(context);
                                             }
-                                            if (this
-                                                    .widget
-                                                    .imagesFromParent
+                                            if (galleryModel
+                                                    .getImages()
                                                     .length !=
                                                 0) {
                                               pageViewController.animateToPage(
@@ -272,10 +277,10 @@ class _ImageDisplayState extends State<ImageDisplay> {
 
                                             // print(this.currentImageIndex);
                                             // print("length 2: " +
-                                            //     widget.imagesFromParent[
+                                            //     galleryModel.getImages()[
                                             //         this.currentImageIndex]);
                                             // print("length 2: " +
-                                            //     widget.imagesFromParent.length
+                                            //     galleryModel.getImages().length
                                             //         .toString());
                                           },
                                     iconSize: 25,
@@ -287,8 +292,8 @@ class _ImageDisplayState extends State<ImageDisplay> {
                                         ? null
                                         : () async {
                                             final Uint8List bytes =
-                                                await new File(widget
-                                                            .imagesFromParent[
+                                                await new File(galleryModel
+                                                            .getImages()[
                                                         this.currentImageIndex])
                                                     .readAsBytes();
                                             await Share.file(
@@ -299,7 +304,7 @@ class _ImageDisplayState extends State<ImageDisplay> {
                                             // final Uint8List bytes = await new File(widget.imagePath).readAsBytes();
                                             // await Share.file('esys image', 'esys.png', bytes.buffer.asUint8List(), 'image/png');
                                             // var request = await HttpClient().getUrl(
-                                            //     Uri.parse(widget.imagesFromParent[
+                                            //     Uri.parse(galleryModel.getImages()[
                                             //         currentImageIndex]));
                                             // var response = await request.close();
                                             // Uint8List bytes =

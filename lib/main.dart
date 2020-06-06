@@ -7,6 +7,9 @@ import 'Pages/Camera/Camera.dart';
 import 'Pages/Settings/Settings.dart';
 import "Storage.dart";
 import "package:shared_preferences/shared_preferences.dart";
+import 'package:provider/provider.dart';
+import './Models/GalleriesModel.dart';
+import './Models/GalleryModel.dart';
 
 // void main() => runApp(MyApp());
 Future<void> main() async {
@@ -14,7 +17,7 @@ Future<void> main() async {
   final cameras = await availableCameras();
 
   runApp(
-    MaterialApp(title: 'Camera App', home: Home(cameras: cameras)),
+    Home(cameras: cameras),
   );
 }
 
@@ -103,7 +106,6 @@ class _HomeState extends State<Home> {
     _initializeControllerFuture = cameraController.initialize();
     super.initState();
     Storage.getGalleries().then((value) async {
-      // galleries = [RandomString(4), RandomString(5)];
       final prefs = await SharedPreferences.getInstance();
       if (prefs.getInt('defaultGalleryIndex') == null) {
         this.setDefaultGalleryIndex(0);
@@ -120,36 +122,27 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      //State of the pages will always be recreated once returned to the page
-      child: PageView(
-        physics: BouncingScrollPhysics(),
-        controller: pageViewController,
-        children: <Widget>[
-          Galleries(
-              galleries: this.galleries,
-              addGalleryFromHome: this.addGalleryFromHome,
-              deleteGalleryFromHome: this.deleteGalleryFromHome,
-              goToCamera: this.goToCamera),
-          Camera(
-            camera: widget.cameras[0],
-            cameraController: this.cameraController,
-            initializeControllerFuture: this._initializeControllerFuture,
-            galleries: this.galleries,
-            addGallery: this.addGalleryFromHome,
-            setSelectedGalleryIndex: this.setSelectedGalleryIndex,
-            selectedGalleryIndex: this.selectedGalleryIndex == null
-                ? this.defaultGalleryIndex
-                : this.selectedGalleryIndex,
-            pageViewController: this.pageViewController,
-          ),
-          Settings(
-            galleries: this.galleries,
-            defaultGalleryIndex: this.defaultGalleryIndex,
-            setDefaultGalleryIndex: this.setDefaultGalleryIndex,
-          ),
-        ],
-      ),
-    );
+    return ChangeNotifierProvider<GalleriesModel>(
+        create: (context) => GalleriesModel(),
+        child: MaterialApp(title: 'Provider Demo', initialRoute: '/', routes: {
+          '/': (context) => Container(
+                //State of the pages will always be recreated once returned to the page
+                child: PageView(
+                  physics: BouncingScrollPhysics(),
+                  controller: pageViewController,
+                  children: <Widget>[
+                    Galleries(goToCamera: this.goToCamera),
+                    Camera(
+                      camera: widget.cameras[0],
+                      cameraController: this.cameraController,
+                      initializeControllerFuture:
+                          this._initializeControllerFuture,
+                      pageViewController: this.pageViewController,
+                    ),
+                    Settings(),
+                  ],
+                ),
+              )
+        }));
   }
 }

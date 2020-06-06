@@ -1,13 +1,14 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:App/Components/GalleriesCard/GalleriesCard.dart';
+import 'package:App/Models/GalleriesModel.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../Storage.dart';
 
 class AddGallery extends StatefulWidget {
-  final Function addGallery;
-  AddGallery({this.addGallery});
+  AddGallery({Key key});
 
   @override
   _AddGalleryState createState() => _AddGalleryState();
@@ -19,6 +20,8 @@ class _AddGalleryState extends State<AddGallery> {
 
   @override
   Widget build(BuildContext context) {
+    var galleriesModel = Provider.of<GalleriesModel>(context);
+
     return AlertDialog(
       title: Column(
         children: <Widget>[
@@ -118,17 +121,17 @@ class _AddGalleryState extends State<AddGallery> {
                         ),
                         color: Colors.green,
                         onPressed: () async {
-                          if (!(await widget
-                              .addGallery(inputController.text))) {
-                            setState(() {
-                              this.error = true;
-                            });
-                          } else {
-                            setState(() {
-                              this.error = false;
-                            });
-                            Navigator.pop(context);
-                          }
+                          await galleriesModel
+                              .add(inputController.text)
+                              .then((onValue) {
+                            if (!onValue) {
+                              setState(() {
+                                error = true;
+                              });
+                            } else {
+                              Navigator.pop(context);
+                            }
+                          });
                         },
                       ),
                     )

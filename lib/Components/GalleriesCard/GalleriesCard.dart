@@ -1,28 +1,18 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:App/Models/GalleriesModel.dart';
 import 'package:App/Pages/GalleryDisplay/GalleryDisplay.dart';
 import 'package:App/Storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:provider/provider.dart';
 
 class GalleriesCard extends StatefulWidget {
   final String title;
-  final Function deleteGallery;
-  final Function editGallery;
   final Function goToCamera;
-  final List<String> galleries;
-  final int totalImages;
-  final Function updateNumbers;
   const GalleriesCard(
-      {@required this.title,
-      @required this.updateNumbers,
-      @required this.totalImages,
-      @required this.deleteGallery,
-      @required this.editGallery,
-      @required this.goToCamera,
-      @required this.galleries,
-      Key key})
+      {@required this.title, @required this.goToCamera, Key key})
       : super(key: key);
 
   @override
@@ -32,84 +22,6 @@ class GalleriesCard extends StatefulWidget {
 class GalleriesCardState extends State<GalleriesCard> {
   TextEditingController textFieldController = TextEditingController();
   bool editing = false;
-
-  void deleteGallery() {
-    showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-              title: Column(
-                children: <Widget>[
-                  Container(
-                    decoration: BoxDecoration(
-                      border:
-                          Border.all(width: 4.0, color: Colors.orangeAccent),
-                      shape: BoxShape.circle,
-                    ),
-                    padding: EdgeInsets.all(20),
-                    margin: EdgeInsets.only(bottom: 20.0),
-                    child: Icon(
-                      Icons.warning,
-                      color: Colors.orangeAccent,
-                      size: 50,
-                    ),
-                  ),
-                  Text(
-                    "Deleting " + widget.title,
-                    style: TextStyle(
-                        color: Colors.black87, fontWeight: FontWeight.w600),
-                  ),
-                  Text(
-                    "Are you sure you want to delete?",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 17,
-                        fontWeight: FontWeight.w600),
-                  )
-                ],
-              ),
-              content: Container(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: <Widget>[
-                    Container(
-                      child: RaisedButton(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: new BorderRadius.circular(5.0)),
-                        child: Text(
-                          "No",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        color: Colors.grey,
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                    ),
-                    Container(
-                      child: RaisedButton(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: new BorderRadius.circular(5.0)),
-                        child: Text(
-                          "Yes",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        color: Colors.green,
-                        onPressed: () async {
-                          if (await widget
-                              .deleteGallery(this.textFieldController.text)) {
-                            Navigator.pop(context);
-                          }
-                        },
-                      ),
-                    )
-                  ],
-                ),
-              ),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0)),
-            ));
-  }
 
   @override
   void initState() {
@@ -124,6 +36,9 @@ class GalleriesCardState extends State<GalleriesCard> {
 
   @override
   Widget build(BuildContext context) {
+    var galleriesModel = Provider.of<GalleriesModel>(context);
+    var galleryModel = galleriesModel.getGallery(widget.title);
+
     return Card(
       elevation: 3,
       color: Colors.white,
@@ -165,11 +80,10 @@ class GalleriesCardState extends State<GalleriesCard> {
               builder: (context) => GalleryDisplay(
                 title: widget.title,
                 goToCamera: widget.goToCamera,
-                galleries: List.of(widget.galleries),
               ),
             ),
           ).then((onValue) {
-            widget.updateNumbers();
+            // widget.updateNumbers();
           });
         },
         child: Container(
@@ -231,7 +145,7 @@ class GalleriesCardState extends State<GalleriesCard> {
                   // ),
                   SizedBox(height: 3),
                   Text(
-                    widget.totalImages.toString() + " images",
+                    galleryModel.getImages().length.toString() + " images",
                     textAlign: TextAlign.left,
                     style: new TextStyle(
                         color: Colors.grey[400],
@@ -257,8 +171,8 @@ class GalleriesCardState extends State<GalleriesCard> {
                       icon: Icon(Icons.edit),
                       onPressed: () async {
                         if (editing) {
-                          if (await widget.editGallery(
-                              widget.title, this.textFieldController.text)) {
+                          if (await galleryModel
+                              .editGalleryName(this.textFieldController.text)) {
                             setState(() {
                               editing = !editing;
                             });
@@ -343,7 +257,7 @@ class GalleriesCardState extends State<GalleriesCard> {
                       color: Colors.orange[300],
                       icon: Icon(Icons.delete),
                       onPressed: () async {
-                        this.deleteGallery();
+                        galleriesModel.remove(widget.title);
                       },
                     ),
                     onPressed: () {},
