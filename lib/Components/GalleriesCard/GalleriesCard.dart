@@ -10,10 +10,7 @@ import 'package:provider/provider.dart';
 
 class GalleriesCard extends StatefulWidget {
   final String title;
-  final Function goToCamera;
-  const GalleriesCard(
-      {@required this.title, @required this.goToCamera, Key key})
-      : super(key: key);
+  GalleriesCard({@required this.title, Key key});
 
   @override
   GalleriesCardState createState() => GalleriesCardState();
@@ -37,8 +34,6 @@ class GalleriesCardState extends State<GalleriesCard> {
   @override
   Widget build(BuildContext context) {
     var galleriesModel = Provider.of<GalleriesModel>(context);
-    var galleryModel = galleriesModel.getGallery(widget.title);
-
     return Card(
       elevation: 3,
       color: Colors.white,
@@ -47,44 +42,15 @@ class GalleriesCardState extends State<GalleriesCard> {
         borderRadius: BorderRadius.circular(20.0),
       ),
       child: GestureDetector(
-        // borderRadius: BorderRadius.only(
-        //   bottomLeft: const Radius.circular(20.0),
-        //   bottomRight: const Radius.circular(20.0),
-        //   topLeft: const Radius.circular(20.0),
-        //   topRight: const Radius.circular(20.0),
-        // ),
         onTap: () async {
           Navigator.push(
             context,
-            // PageRouteBuilder(
-            //   pageBuilder: (c, a1, a2) => GalleryDisplay(
-            //     title: widget.title,
-            //     goToCamera: widget.goToCamera,
-            //     galleries: List.of(widget.galleries),
-            //   ),
-            //   transitionsBuilder: (BuildContext context,
-            //       Animation<double> animation,
-            //       Animation<double> secondaryAnimation,
-            //       Widget child) {
-            //     return new SlideTransition(
-            //       position: new Tween<Offset>(
-            //         begin: const Offset(1.0, 0.0),
-            //         end: Offset.zero,
-            //       ).animate(animation),
-            //       child: child,
-            //     );
-            //   },
-            //   transitionDuration: Duration(milliseconds: 150),
-            // ),
             MaterialPageRoute(
               builder: (context) => GalleryDisplay(
                 title: widget.title,
-                goToCamera: widget.goToCamera,
               ),
             ),
-          ).then((onValue) {
-            // widget.updateNumbers();
-          });
+          );
         },
         child: Container(
           padding: new EdgeInsets.fromLTRB(20, 40, 20, 50),
@@ -135,17 +101,16 @@ class GalleriesCardState extends State<GalleriesCard> {
                           focusedBorder: InputBorder.none),
                     ),
                   ),
-                  // Text(
-                  //   widget.title,
-                  //   textAlign: TextAlign.left,
-                  //   style: new TextStyle(
-                  //       color: Colors.grey[800],
-                  //       fontWeight: FontWeight.w400,
-                  //       fontSize: 20.0),
-                  // ),
                   SizedBox(height: 3),
                   Text(
-                    galleryModel.getImages().length.toString() + " images",
+                    (galleriesModel.getGallery(widget.title) == null
+                            ? 0.toString()
+                            : galleriesModel
+                                .getGallery(widget.title)
+                                .getImages()
+                                .length
+                                .toString()) +
+                        " images",
                     textAlign: TextAlign.left,
                     style: new TextStyle(
                         color: Colors.grey[400],
@@ -171,8 +136,8 @@ class GalleriesCardState extends State<GalleriesCard> {
                       icon: Icon(Icons.edit),
                       onPressed: () async {
                         if (editing) {
-                          if (await galleryModel
-                              .editGalleryName(this.textFieldController.text)) {
+                          if (await galleriesModel.editGalleryName(
+                              widget.title, this.textFieldController.text)) {
                             setState(() {
                               editing = !editing;
                             });

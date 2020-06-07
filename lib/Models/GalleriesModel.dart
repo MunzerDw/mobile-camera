@@ -8,18 +8,32 @@ import 'package:flutter/foundation.dart';
 import 'GalleryModel.dart';
 import 'package:flutter/material.dart';
 import "package:shared_preferences/shared_preferences.dart";
+import 'package:camera/camera.dart';
 
 class GalleriesModel extends ChangeNotifier {
   List<GalleryModel> galleries = [];
   GlobalKey<AnimatedListState> listKey = GlobalKey();
   GalleryModel defaultGallery;
   GalleryModel selectedGallery;
+  PageController pageViewController;
+  List<CameraDescription> cameras;
+  CameraDescription camera;
+  CameraController cameraController;
+  Future<void> initializeControllerFuture;
 
   GalleriesModel() {
-    this.init();
+    this.pageViewController = PageController(initialPage: 1);
+    this.initAsync();
   }
 
-  void init() async {
+  void initAsync() async {
+    this.cameras = await availableCameras();
+    this.camera = this.cameras[0];
+    this.cameraController = CameraController(
+      this.cameras[0],
+      ResolutionPreset.max,
+    );
+    this.initializeControllerFuture = cameraController.initialize();
     var temp = await Storage.getGalleries();
     this.galleries = temp.map((f) {
       return GalleryModel(f);
@@ -27,6 +41,12 @@ class GalleriesModel extends ChangeNotifier {
     await updateDefaultGallery();
     this.selectedGallery = this.defaultGallery;
     notifyListeners();
+  }
+
+  void goToCamera(String gallery) {
+    this.setSelectedGallery(gallery);
+    this.pageViewController.animateToPage(1,
+        duration: Duration(milliseconds: 200), curve: Curves.easeIn);
   }
 
   Future<void> setdefaultGallery(String gallery) {
@@ -98,11 +118,7 @@ class GalleriesModel extends ChangeNotifier {
                 begin: const Offset(0, 1),
                 end: Offset.zero,
               ).animate(animation),
-              child: GalleriesCard(
-                key: UniqueKey(),
-                title: item,
-                goToCamera: null,
-              ),
+              child: GalleriesCard(key: UniqueKey(), title: item),
             ),
           )
         : Center(
@@ -119,9 +135,7 @@ class GalleriesModel extends ChangeNotifier {
   }
 
   GalleryModel getGallery(String name) {
-    try {
-      return this.galleries.firstWhere((test) => test.name == name);
-    } catch (e) {}
+    return this.galleries.firstWhere((test) => test.name == name);
   }
 
   Future<bool> add(String newGallery) {
@@ -177,10 +191,40 @@ class GalleriesModel extends ChangeNotifier {
         this.galleries.firstWhere((test) => test.name == from);
     GalleryModel toGallery =
         this.galleries.firstWhere((test) => test.name == to);
+    return Storage.moveImages(from, to, images).then((onValue) async {
+      if (onValue) {
+        toGallery.addImages(images);
+        await fromGallery.removeImages(images);
+        notifyListeners();
+      }
+      return onValue;
+    });
+  }
 
-    notifyListeners();
-    return await toGallery.addImages(images)
-        ? (await fromGallery.removeImages(images) ? true : false)
-        : false;
+  Future<bool> editGalleryName(String gallery, String newName) {
+    return this
+        .galleries
+        .firstWhere((item) {
+          return item.name == gallery;
+        })
+        .editGalleryName(newName)
+        .then((onValue) {
+          if (onValue) {
+            notifyListeners();
+          }
+          return onValue;
+        });
+  }
+
+  Future<bool> removeImages(GalleryModel gallery, List<String> paths) async {
+    return this
+        .getGallery(gallery.name)
+        .removeImages(List.from(paths))
+        .then((onValue) {
+      if (onValue) {
+        notifyListeners();
+      }
+      return onValue;
+    });
   }
 }

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:App/Models/GalleriesModel.dart';
-import 'package:App/Models/GalleryModel.dart';
 import 'package:App/Pages/ImageDisplay/ImageDisplay.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -12,8 +11,7 @@ import '../../Storage.dart';
 
 class GalleryDisplay extends StatefulWidget {
   final String title;
-  final Function goToCamera;
-  GalleryDisplay({@required this.title, @required this.goToCamera});
+  GalleryDisplay({@required this.title});
 
   @override
   _GalleryDisplayState createState() => _GalleryDisplayState();
@@ -54,11 +52,7 @@ class _GalleryDisplayState extends State<GalleryDisplay> {
   @override
   Widget build(BuildContext context) {
     var galleriesModel = Provider.of<GalleriesModel>(context);
-    var galleryModel = galleriesModel.getGallery(widget.title);
-
     return Scaffold(
-        // The image is stored as a file on the device. Use the `Image.file`
-        // constructor with the given path to display the image
         backgroundColor: Colors.white,
         body: GestureDetector(
           onHorizontalDragEnd: (DragEndDetails dragEndDetails) {
@@ -88,7 +82,11 @@ class _GalleryDisplayState extends State<GalleryDisplay> {
                               padding: EdgeInsets.all(2),
                             ),
                             Text(
-                              galleryModel.getImages().length.toString() +
+                              galleriesModel
+                                      .getGallery(widget.title)
+                                      .getImages()
+                                      .length
+                                      .toString() +
                                   " images",
                               style: TextStyle(
                                   fontWeight: FontWeight.w300, fontSize: 15.0),
@@ -102,7 +100,8 @@ class _GalleryDisplayState extends State<GalleryDisplay> {
                       ],
                     ),
                   ),
-                  galleryModel.getImages().length != 0
+                  galleriesModel.getGallery(widget.title).getImages().length !=
+                          0
                       ? GridView.count(
                           shrinkWrap: true,
                           padding: EdgeInsets.fromLTRB(1, 1, 1, 1),
@@ -111,12 +110,16 @@ class _GalleryDisplayState extends State<GalleryDisplay> {
                           crossAxisCount: 4,
                           // Generate 100 widgets that display their index in the List.
                           children: List.generate(
-                              galleryModel.getImages().length, (index) {
+                              galleriesModel
+                                  .getGallery(widget.title)
+                                  .getImages()
+                                  .length, (index) {
                             return GestureDetector(
                               onLongPress: () {
                                 if (!this.editing) {
                                   this.toogleEditing();
-                                  this.selectImage(galleryModel
+                                  this.selectImage(galleriesModel
+                                      .getGallery(widget.title)
                                       .getImages()
                                       .elementAt(index));
                                 }
@@ -133,12 +136,17 @@ class _GalleryDisplayState extends State<GalleryDisplay> {
                                     ),
                                   );
                                 } else {
-                                  if (selectedImages.contains(index)) {
-                                    this.deselectImage(galleryModel
+                                  if (selectedImages.contains(galleriesModel
+                                      .getGallery(widget.title)
+                                      .getImages()
+                                      .elementAt(index))) {
+                                    this.deselectImage(galleriesModel
+                                        .getGallery(widget.title)
                                         .getImages()
                                         .elementAt(index));
                                   } else {
-                                    this.selectImage(galleryModel
+                                    this.selectImage(galleriesModel
+                                        .getGallery(widget.title)
                                         .getImages()
                                         .elementAt(index));
                                   }
@@ -152,8 +160,9 @@ class _GalleryDisplayState extends State<GalleryDisplay> {
                                 width: 120.0,
                                 decoration: BoxDecoration(
                                     image: DecorationImage(
-                                        image: FileImage(File(
-                                            galleryModel.getImages()[index])),
+                                        image: FileImage(File(galleriesModel
+                                            .getGallery(widget.title)
+                                            .getImages()[index])),
                                         fit: BoxFit.cover)),
                                 child: this.editing
                                     ? Container(
@@ -161,13 +170,21 @@ class _GalleryDisplayState extends State<GalleryDisplay> {
                                         width: 30,
                                         decoration: BoxDecoration(
                                             shape: BoxShape.circle,
-                                            color:
-                                                selectedImages.contains(index)
-                                                    ? Colors.white
-                                                    : Colors.white38,
+                                            color: selectedImages.contains(
+                                                    galleriesModel
+                                                        .getGallery(
+                                                            widget.title)
+                                                        .getImages()
+                                                        .elementAt(index))
+                                                ? Colors.white
+                                                : Colors.white38,
                                             border: Border.all(
                                                 color: Colors.grey, width: 1)),
-                                        child: selectedImages.contains(index)
+                                        child: selectedImages.contains(
+                                                galleriesModel
+                                                    .getGallery(widget.title)
+                                                    .getImages()
+                                                    .elementAt(index))
                                             ? Icon(
                                                 Icons.check,
                                                 color: Colors.black,
@@ -301,13 +318,19 @@ class _GalleryDisplayState extends State<GalleryDisplay> {
                                                               color:
                                                                   Colors.green,
                                                               onPressed: () {
-                                                                setState(() {
-                                                                  selectedImages =
-                                                                      List<
-                                                                          String>();
+                                                                galleriesModel
+                                                                    .removeImages(
+                                                                        galleriesModel.getGallery(widget
+                                                                            .title),
+                                                                        this
+                                                                            .selectedImages)
+                                                                    .then(
+                                                                        (onValue) {
+                                                                  if (onValue) {
+                                                                    Navigator.pop(
+                                                                        context);
+                                                                  }
                                                                 });
-                                                                Navigator.pop(
-                                                                    context);
                                                               },
                                                             ),
                                                           )
@@ -365,7 +388,12 @@ class _GalleryDisplayState extends State<GalleryDisplay> {
                                                                 DropdownButton<
                                                                     String>(
                                                               hint: Text(
-                                                                "Add a new gallery",
+                                                                galleriesModel
+                                                                            .getGalleries()
+                                                                            .length >
+                                                                        1
+                                                                    ? "Select a gallery"
+                                                                    : "No other galleries found",
                                                                 style: TextStyle(
                                                                     fontSize:
                                                                         17),
@@ -380,18 +408,10 @@ class _GalleryDisplayState extends State<GalleryDisplay> {
                                                               value: galleriesModel
                                                                           .getGalleries()
                                                                           .length >
-                                                                      0
-                                                                  ? galleriesModel
-                                                                      .getGalleries()
-                                                                      .elementAt(galleriesModel
-                                                                          .getGalleries()
-                                                                          .indexOf(galleriesModel
-                                                                              .getGalleries()
-                                                                              .firstWhere((gallery) {
-                                                                            return gallery.name ==
-                                                                                this.selectedGallery;
-                                                                          })))
-                                                                  : "",
+                                                                      1
+                                                                  ? this
+                                                                      .selectedGallery
+                                                                  : "No other galleries found",
                                                               onChanged: (String
                                                                   value) {
                                                                 setState(() {
@@ -403,8 +423,13 @@ class _GalleryDisplayState extends State<GalleryDisplay> {
                                                                   SizedBox(),
                                                               items: galleriesModel
                                                                   .getGalleries()
-                                                                  .map((GalleryModel
-                                                                      gallery) {
+                                                                  .where(
+                                                                      (item) {
+                                                                return item
+                                                                        .name !=
+                                                                    widget
+                                                                        .title;
+                                                              }).map((gallery) {
                                                                 return DropdownMenuItem<
                                                                     String>(
                                                                   value: gallery
@@ -471,7 +496,7 @@ class _GalleryDisplayState extends State<GalleryDisplay> {
                                                                           await galleriesModel.moveImages(
                                                                               widget.title,
                                                                               this.selectedGallery,
-                                                                              this.selectedImages);
+                                                                              List.from(this.selectedImages));
                                                                           Navigator.pop(
                                                                               context);
                                                                         }
@@ -512,15 +537,23 @@ class _GalleryDisplayState extends State<GalleryDisplay> {
                         this.editing
                             ? IconButton(
                                 color: this.selectedImages.length ==
-                                            galleryModel.getImages().length &&
+                                            galleriesModel
+                                                .getGallery(widget.title)
+                                                .getImages()
+                                                .length &&
                                         this.selectedImages.length > 0
                                     ? Colors.blue[800]
                                     : Colors.black,
                                 onPressed: () {
                                   if (this.selectedImages.length <
-                                      galleryModel.getImages().length) {
+                                      galleriesModel
+                                          .getGallery(widget.title)
+                                          .getImages()
+                                          .length) {
                                     setState(() {
-                                      selectedImages = galleryModel.getImages();
+                                      selectedImages = galleriesModel
+                                          .getGallery(widget.title)
+                                          .getImages();
                                     });
                                   } else {
                                     setState(() {
@@ -536,7 +569,7 @@ class _GalleryDisplayState extends State<GalleryDisplay> {
                             ? IconButton(
                                 color: Colors.black,
                                 onPressed: () {
-                                  widget.goToCamera(widget.title);
+                                  galleriesModel.goToCamera(widget.title);
                                   Navigator.pop(context);
                                 },
                                 iconSize: 30,

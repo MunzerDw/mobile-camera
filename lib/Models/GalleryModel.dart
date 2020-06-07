@@ -31,45 +31,29 @@ class GalleryModel extends ChangeNotifier {
     });
   }
 
-  Future<bool> addImage(String path) {
+  void addImage(String path) {
     this.images.add(path);
-    return Future<bool>.value(true);
-    // return Future<bool>(() => {}).then((onValue) {
-    //   this.images.add(path);
-    //   return true;
-    // });
   }
 
   Future<bool> removeImages(List<String> paths) async {
     var pathsStream = new Stream.fromIterable(paths);
     await for (var path in pathsStream) {
-      Storage.removeImage(path).then((onValue) {
-        this.images.remove(path);
-        notifyListeners();
-      }).catchError((onError) {
-        return false;
-      });
+      await this.removeImage(path);
     }
-    return true;
+    return Future<bool>.value(true);
   }
 
   Future<bool> addImages(List<String> paths) async {
     var pathsStream = new Stream.fromIterable(paths);
     await for (var path in pathsStream) {
-      this.addImage(path).then((onValue) {
-        this.images.remove(path);
-        notifyListeners();
-      }).catchError((onError) {
-        return false;
-      });
+      this.addImage(path);
     }
-    return true;
+    return Future<bool>.value(true);
   }
 
   Future<bool> editGalleryName(String newName) {
     return Storage.editGalleryName(this.name, newName).then((onValue) {
       this.name = newName;
-      notifyListeners();
       return true;
     }).catchError((onError) {
       return false;

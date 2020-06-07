@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class Blink extends StatelessWidget {
-  const Blink({Key key}) : super(key: key);
+  Blink({Key key});
 
   @override
   Widget build(BuildContext context) {
