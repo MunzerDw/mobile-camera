@@ -479,7 +479,6 @@ class SelectAllButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<GalleryDisplayModel>(builder: (BuildContext context,
         GalleryDisplayModel galleryDisplayModel, Widget child) {
-      print(galleryDisplayModel.selectedImages.length);
       return IconButton(
         color: galleryDisplayModel.selectedImages.length ==
                     galleryDisplayModel.currentGallery.images.length &&
