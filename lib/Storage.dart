@@ -1,9 +1,6 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:flutter/material.dart';
 import "package:path_provider/path_provider.dart";
-import 'package:camera/camera.dart';
-import 'Pages/Camera/Camera.dart';
 
 class Storage {
   static Future<List<String>> getGalleries() async {
@@ -105,9 +102,7 @@ class Storage {
 
           imagesToMove.forEach((image) async {
             String newPath = image.path.replaceAll(oldGallery, newGallery);
-            if (!(await Storage.copyImage(image, newPath))) {
-              return false;
-            }
+            await Storage.copyImage(image, newPath);
           });
 
           if (!(await Storage.removeGallery(oldGallery))) {
@@ -147,15 +142,11 @@ class Storage {
         .then((onValue) {
           imagesToMoveAsFiles.forEach((image) async {
             String newPath = image.path.replaceAll(from, to);
-            if (!(await Storage.copyImage(image, newPath))) {
-              return false;
-            }
+            await Storage.copyImage(image, newPath);
           });
 
           images.forEach((image) async {
-            if (!(await Storage.removeImage(image))) {
-              return false;
-            }
+            await Storage.removeImage(image);
           });
 
           return true;

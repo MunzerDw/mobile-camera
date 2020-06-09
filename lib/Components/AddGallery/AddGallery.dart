@@ -1,15 +1,8 @@
-import 'dart:async';
-import 'dart:math';
-import 'package:App/Components/GalleriesCard/GalleriesCard.dart';
 import 'package:App/Models/GalleriesModel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../Storage.dart';
-
 class AddGallery extends StatefulWidget {
-  AddGallery({Key key});
-
   @override
   _AddGalleryState createState() => _AddGalleryState();
 }

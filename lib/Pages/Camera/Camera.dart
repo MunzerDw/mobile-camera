@@ -1,18 +1,14 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:math';
 import 'package:App/Components/AddGallery/AddGallery.dart';
 import 'package:App/Models/CameraModel.dart';
 import 'package:App/Models/GalleriesModel.dart';
 import 'package:App/Models/GalleryModel.dart';
 import 'package:App/Models/ImageDisplayModel.dart';
 import 'package:App/Pages/Blink/Blink.dart';
-import 'package:App/Pages/Galleries/Galleries.dart';
 import 'package:App/Pages/ImageDisplay/ImageDisplay.dart';
-import 'package:App/Storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:path/path.dart' show join;
 import 'package:path_provider/path_provider.dart';
 import 'package:camera/camera.dart';
 import 'package:provider/provider.dart';
