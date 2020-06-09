@@ -20,8 +20,6 @@ class _AddGalleryState extends State<AddGallery> {
 
   @override
   Widget build(BuildContext context) {
-    var galleriesModel = Provider.of<GalleriesModel>(context);
-
     return AlertDialog(
       title: Column(
         children: <Widget>[
@@ -111,30 +109,33 @@ class _AddGalleryState extends State<AddGallery> {
                         },
                       ),
                     ),
-                    Container(
-                      child: RaisedButton(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: new BorderRadius.circular(5.0)),
-                        child: Text(
-                          "Add",
-                          style: TextStyle(color: Colors.white),
+                    Consumer<GalleriesModel>(builder: (BuildContext context,
+                        GalleriesModel galleriesModel, Widget child) {
+                      return Container(
+                        child: RaisedButton(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: new BorderRadius.circular(5.0)),
+                          child: Text(
+                            "Add",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          color: Colors.green,
+                          onPressed: () async {
+                            await galleriesModel
+                                .add(inputController.text)
+                                .then((onValue) {
+                              if (!onValue) {
+                                setState(() {
+                                  error = true;
+                                });
+                              } else {
+                                Navigator.pop(context);
+                              }
+                            });
+                          },
                         ),
-                        color: Colors.green,
-                        onPressed: () async {
-                          await galleriesModel
-                              .add(inputController.text)
-                              .then((onValue) {
-                            if (!onValue) {
-                              setState(() {
-                                error = true;
-                              });
-                            } else {
-                              Navigator.pop(context);
-                            }
-                          });
-                        },
-                      ),
-                    )
+                      );
+                    })
                   ],
                 ),
               ),

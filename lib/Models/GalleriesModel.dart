@@ -8,18 +8,20 @@ import 'package:flutter/foundation.dart';
 import 'GalleryModel.dart';
 import 'package:flutter/material.dart';
 import "package:shared_preferences/shared_preferences.dart";
+import 'package:camera/camera.dart';
 
 class GalleriesModel extends ChangeNotifier {
   List<GalleryModel> galleries = [];
   GlobalKey<AnimatedListState> listKey = GlobalKey();
   GalleryModel defaultGallery;
   GalleryModel selectedGallery;
+  GalleryModel currentGallery;
 
   GalleriesModel() {
-    this.init();
+    this.initAsync();
   }
 
-  void init() async {
+  void initAsync() async {
     var temp = await Storage.getGalleries();
     this.galleries = temp.map((f) {
       return GalleryModel(f);
@@ -28,6 +30,10 @@ class GalleriesModel extends ChangeNotifier {
     this.selectedGallery = this.defaultGallery;
     notifyListeners();
   }
+
+  Future<bool> addCurrentImage(String path) {}
+
+  Future<bool> removeCurrentImage(String path) {}
 
   Future<void> setdefaultGallery(String gallery) {
     return SharedPreferences.getInstance().then((onValue) {
@@ -98,11 +104,7 @@ class GalleriesModel extends ChangeNotifier {
                 begin: const Offset(0, 1),
                 end: Offset.zero,
               ).animate(animation),
-              child: GalleriesCard(
-                key: UniqueKey(),
-                title: item,
-                goToCamera: null,
-              ),
+              child: GalleriesCard(key: UniqueKey(), title: item),
             ),
           )
         : Center(
@@ -151,21 +153,20 @@ class GalleriesModel extends ChangeNotifier {
     int index = this.galleries.indexOf(this.galleries.firstWhere((item) {
           return item.name == gallery;
         }));
-    return Storage.removeGallery(gallery).then((onValue) {
+    return Storage.removeGallery(gallery).then((onValue) async {
+      if (!onValue) {
+        return false;
+      }
+      this.galleries.removeAt(index);
+      await updateDefaultGallery();
+      updateSelectedGallery();
+      notifyListeners();
       listKey.currentState.removeItem(
         index + 1,
         (BuildContext context, Animation animation) =>
             buildItem(context, index + 1, gallery, animation),
         duration: const Duration(milliseconds: 250),
       );
-      Future.delayed(const Duration(milliseconds: 250), () async {
-        this.galleries.remove(this.galleries.firstWhere((item) {
-              return item.name == gallery;
-            }));
-        await updateDefaultGallery();
-        updateSelectedGallery();
-        notifyListeners();
-      });
       return true;
     }).catchError((onError) {
       return false;
@@ -177,10 +178,58 @@ class GalleriesModel extends ChangeNotifier {
         this.galleries.firstWhere((test) => test.name == from);
     GalleryModel toGallery =
         this.galleries.firstWhere((test) => test.name == to);
+    return Storage.moveImages(from, to, images).then((onValue) async {
+      if (onValue) {
+        toGallery.addImages(images);
+        await fromGallery.removeImages(images);
+        notifyListeners();
+      }
+      return onValue;
+    });
+  }
 
-    notifyListeners();
-    return await toGallery.addImages(images)
-        ? (await fromGallery.removeImages(images) ? true : false)
-        : false;
+  Future<bool> editGalleryName(String gallery, String newName) {
+    return this
+        .galleries
+        .firstWhere((item) {
+          return item.name == gallery;
+        })
+        .editGalleryName(newName)
+        .then((onValue) {
+          if (onValue) {
+            notifyListeners();
+          }
+          return onValue;
+        });
+  }
+
+  Future<bool> removeImages(GalleryModel gallery, List<String> paths) async {
+    return this
+        .getGallery(gallery.name)
+        .removeImages(List.from(paths))
+        .then((onValue) {
+      if (onValue) {
+        notifyListeners();
+      }
+      return onValue;
+    });
+  }
+
+  Future<bool> removeImage(GalleryModel gallery, String path) async {
+    return this.getGallery(gallery.name).removeImage(path).then((onValue) {
+      if (onValue) {
+        notifyListeners();
+      }
+      return onValue;
+    });
+  }
+
+  Future<bool> addImage(GalleryModel gallery, String path) async {
+    return this.getGallery(gallery.name).removeImage(path).then((onValue) {
+      if (onValue) {
+        notifyListeners();
+      }
+      return onValue;
+    });
   }
 }

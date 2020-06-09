@@ -9,13 +9,8 @@ import '../../Models/GalleriesModel.dart';
 import '../../Storage.dart';
 
 class Galleries extends StatelessWidget {
-  final Function goToCamera;
-  Galleries({@required this.goToCamera});
-
   @override
   Widget build(BuildContext context) {
-    var galleriesModel = Provider.of<GalleriesModel>(context);
-
     return Scaffold(
         floatingActionButton: Container(
           margin: EdgeInsets.fromLTRB(0, 0, 10, 5),
@@ -32,8 +27,10 @@ class Galleries extends StatelessWidget {
             color: Colors.grey[100],
             child: Column(
               children: <Widget>[
-                Expanded(
-                  child: AnimatedList(
+                Expanded(child: Consumer<GalleriesModel>(builder:
+                    (BuildContext context, GalleriesModel galleriesModel,
+                        Widget child) {
+                  return AnimatedList(
                     padding: EdgeInsets.fromLTRB(0, 20, 0, 80),
                     shrinkWrap: true,
                     key: galleriesModel.listKey,
@@ -49,8 +46,8 @@ class Galleries extends StatelessWidget {
                                     .galleries[index == 0 ? 0 : index - 1]
                                     .getName(),
                             animation),
-                  ),
-                ),
+                  );
+                })),
               ],
             )));
   }

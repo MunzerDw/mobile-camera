@@ -11,8 +11,6 @@ import 'package:camera/camera.dart';
 import 'package:provider/provider.dart';
 
 class Settings extends StatelessWidget {
-  const Settings({Key key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -39,8 +37,6 @@ class Settings extends StatelessWidget {
 }
 
 class DefaultGallery extends StatelessWidget {
-  const DefaultGallery({Key key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return Card(
