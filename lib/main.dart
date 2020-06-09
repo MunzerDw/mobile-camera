@@ -2,6 +2,7 @@ import 'package:App/Models/CameraModel.dart';
 import 'package:App/Models/ImageDisplayModel.dart';
 import 'package:App/Pages/Galleries/Galleries.dart';
 import 'package:flutter/material.dart';
+import 'Models/GalleryDisplayModel.dart';
 import 'Pages/Camera/Camera.dart';
 import 'Pages/Settings/Settings.dart';
 import 'package:provider/provider.dart';
@@ -23,7 +24,9 @@ class CameraGal extends StatelessWidget {
             create: (context) => GalleriesModel()),
         ChangeNotifierProvider<CameraModel>(create: (context) => CameraModel()),
         ChangeNotifierProvider<ImageDisplayModel>(
-            create: (context) => ImageDisplayModel())
+            create: (context) => ImageDisplayModel()),
+        ChangeNotifierProvider<GalleryDisplayModel>(
+            create: (context) => GalleryDisplayModel())
       ],
       child: MaterialApp(
           title: 'Camera Gal',
