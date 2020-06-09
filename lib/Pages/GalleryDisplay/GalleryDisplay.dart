@@ -510,10 +510,11 @@ class GoToCameraButton extends StatelessWidget {
         Widget child) {
       return IconButton(
           color: Colors.black,
-          onPressed: () {
+          onPressed: () async {
             galleriesModel
                 .setSelectedGallery(galleryDisplayModel.currentGallery.name);
-            cameraModel.goToCamera(galleryDisplayModel.currentGallery.name);
+            await cameraModel
+                .goToCamera(galleryDisplayModel.currentGallery.name);
             Navigator.pop(context);
           },
           iconSize: 30,
