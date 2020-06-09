@@ -24,8 +24,8 @@ class CameraModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void goToCamera(String gallery) {
-    this.pageViewController.animateToPage(1,
+  Future<void> goToCamera(String gallery) {
+    return this.pageViewController.animateToPage(1,
         duration: Duration(milliseconds: 200), curve: Curves.easeIn);
   }
 }

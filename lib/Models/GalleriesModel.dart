@@ -116,7 +116,9 @@ class GalleriesModel extends ChangeNotifier {
   }
 
   GalleryModel getGallery(String name) {
-    return this.galleries.firstWhere((test) => test.name == name);
+    try {
+      return this.galleries.firstWhere((test) => test.name == name);
+    } catch (e) {}
   }
 
   Future<bool> add(String newGallery) {
@@ -176,7 +178,7 @@ class GalleriesModel extends ChangeNotifier {
     return Storage.moveImages(from, to, images).then((onValue) async {
       if (onValue) {
         toGallery.addImages(images);
-        await fromGallery.removeImages(images);
+        await fromGallery.removeImages(List.from(images));
         notifyListeners();
       }
       return onValue;
