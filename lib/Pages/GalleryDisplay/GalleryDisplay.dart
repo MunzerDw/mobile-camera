@@ -60,6 +60,7 @@ class _GalleryDisplayState extends State<GalleryDisplay> {
       const Choice(title: 'Delete', icon: Icons.delete),
       const Choice(title: 'Move', icon: Icons.reply),
     ];
+
     return Scaffold(
         backgroundColor: Colors.white,
         body: GestureDetector(
