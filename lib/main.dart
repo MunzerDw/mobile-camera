@@ -15,8 +15,6 @@ void main() {
 }
 
 class CameraGal extends StatelessWidget {
-  const CameraGal({Key key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -36,8 +34,6 @@ class CameraGal extends StatelessWidget {
 }
 
 class Pages extends StatelessWidget {
-  Pages({Key key});
-
   @override
   Widget build(BuildContext context) {
     return Consumer<CameraModel>(

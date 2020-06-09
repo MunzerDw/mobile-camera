@@ -1,11 +1,6 @@
-import 'dart:async';
 import 'dart:io';
-import 'dart:math';
 import 'dart:typed_data';
-import 'package:App/Models/GalleriesModel.dart';
-import 'package:App/Models/GalleryModel.dart';
 import 'package:App/Models/ImageDisplayModel.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:photo_view/photo_view.dart';
@@ -86,7 +81,8 @@ class Images extends StatelessWidget {
                                 height: screenWidth * 1.5,
                                 child: PhotoView(
                                   scaleStateChangedCallback:
-                                      (PhotoViewScaleState) {
+                                      (PhotoViewScaleState
+                                          photoViewScaleState) {
                                     if (imageDisplayModel
                                             .scaleStateController.scaleState ==
                                         initialState) {
@@ -99,8 +95,10 @@ class Images extends StatelessWidget {
                                       imageDisplayModel.scaleStateController,
                                   controller:
                                       imageDisplayModel.photoViewController,
-                                  onTapUp: (BuildContext, TapUpDetails,
-                                      PhotoViewControllerValue) {
+                                  onTapUp: (BuildContext buildContext,
+                                      TapUpDetails tapUpDetails,
+                                      PhotoViewControllerValue
+                                          photoViewScaleState) {
                                     imageDisplayModel.toogleTopBar();
                                     if (imageDisplayModel
                                             .scaleStateController.scaleState ==

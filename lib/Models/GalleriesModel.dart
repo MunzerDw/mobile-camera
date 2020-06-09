@@ -8,7 +8,6 @@ import 'package:flutter/foundation.dart';
 import 'GalleryModel.dart';
 import 'package:flutter/material.dart';
 import "package:shared_preferences/shared_preferences.dart";
-import 'package:camera/camera.dart';
 
 class GalleriesModel extends ChangeNotifier {
   List<GalleryModel> galleries = [];
@@ -30,10 +29,6 @@ class GalleriesModel extends ChangeNotifier {
     this.selectedGallery = this.defaultGallery;
     notifyListeners();
   }
-
-  Future<bool> addCurrentImage(String path) {}
-
-  Future<bool> removeCurrentImage(String path) {}
 
   Future<void> setdefaultGallery(String gallery) {
     return SharedPreferences.getInstance().then((onValue) {
@@ -121,9 +116,7 @@ class GalleriesModel extends ChangeNotifier {
   }
 
   GalleryModel getGallery(String name) {
-    try {
-      return this.galleries.firstWhere((test) => test.name == name);
-    } catch (e) {}
+    return this.galleries.firstWhere((test) => test.name == name);
   }
 
   Future<bool> add(String newGallery) {
@@ -157,16 +150,18 @@ class GalleriesModel extends ChangeNotifier {
       if (!onValue) {
         return false;
       }
-      this.galleries.removeAt(index);
-      await updateDefaultGallery();
-      updateSelectedGallery();
-      notifyListeners();
       listKey.currentState.removeItem(
         index + 1,
         (BuildContext context, Animation animation) =>
             buildItem(context, index + 1, gallery, animation),
         duration: const Duration(milliseconds: 250),
       );
+      await Future.delayed(Duration(milliseconds: 250), () async {
+        this.galleries.removeAt(index);
+        await updateDefaultGallery();
+        updateSelectedGallery();
+        notifyListeners();
+      });
       return true;
     }).catchError((onError) {
       return false;

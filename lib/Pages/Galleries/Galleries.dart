@@ -1,12 +1,8 @@
-import 'dart:async';
-import 'dart:math';
 import 'package:App/Components/AddGallery/AddGallery.dart';
-import 'package:App/Components/GalleriesCard/GalleriesCard.dart';
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 import '../../Models/GalleriesModel.dart';
-import '../../Storage.dart';
 
 class Galleries extends StatelessWidget {
   @override

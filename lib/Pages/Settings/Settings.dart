@@ -1,13 +1,6 @@
-import 'dart:async';
-import 'dart:math';
 import 'package:App/Models/GalleriesModel.dart';
 import 'package:App/Models/GalleryModel.dart';
-import 'package:App/Pages/Galleries/Galleries.dart';
-import 'package:App/Pages/ImageDisplay/ImageDisplay.dart';
 import 'package:flutter/material.dart';
-import 'package:path/path.dart' show join;
-import 'package:path_provider/path_provider.dart';
-import 'package:camera/camera.dart';
 import 'package:provider/provider.dart';
 
 class Settings extends StatelessWidget {

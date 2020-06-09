@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 import 'package:App/Models/CameraModel.dart';
 import 'package:App/Models/GalleriesModel.dart';
@@ -7,9 +6,7 @@ import 'package:App/Pages/ImageDisplay/ImageDisplay.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import "package:flutter_svg/flutter_svg.dart";
 import 'package:provider/provider.dart';
-import '../../Storage.dart';
 
 class GalleryDisplay extends StatefulWidget {
   final String title;
@@ -481,7 +478,10 @@ class _GalleryDisplayState extends State<GalleryDisplay> {
                                                                           await galleriesModel.moveImages(
                                                                               widget.title,
                                                                               this.selectedGallery,
-                                                                              List.from(this.selectedImages));
+                                                                              this.selectedImages);
+                                                                          imageDisplayModel.removeImages(
+                                                                              galleriesModel.getGallery(widget.title),
+                                                                              this.selectedImages);
                                                                           Navigator.pop(
                                                                               context);
                                                                         }
