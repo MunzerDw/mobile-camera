@@ -110,7 +110,10 @@ class _GalleryDisplayState extends State<GalleryDisplay> {
                                     MaterialPageRoute(
                                       builder: (context) => ImageDisplay(),
                                     ),
-                                  );
+                                  ).then((onValue) {
+                                    imageDisplayModel.clear();
+                                    imageDisplayModel.showTopBar();
+                                  });
                                 } else {
                                   if (selectedImages.contains(galleriesModel
                                       .getGallery(widget.title)
@@ -293,20 +296,25 @@ class _GalleryDisplayState extends State<GalleryDisplay> {
                                                               ),
                                                               color:
                                                                   Colors.green,
-                                                              onPressed: () {
-                                                                galleriesModel
-                                                                    .removeImages(
-                                                                        galleriesModel.getGallery(widget
-                                                                            .title),
-                                                                        this
-                                                                            .selectedImages)
-                                                                    .then(
-                                                                        (onValue) {
-                                                                  if (onValue) {
-                                                                    Navigator.pop(
-                                                                        context);
-                                                                  }
-                                                                });
+                                                              onPressed:
+                                                                  () async {
+                                                                if (await galleriesModel.removeImages(
+                                                                    galleriesModel
+                                                                        .getGallery(
+                                                                            widget.title),
+                                                                    this.selectedImages)) {
+                                                                  imageDisplayModel.removeImages(
+                                                                      galleriesModel
+                                                                          .getGallery(
+                                                                              widget.title),
+                                                                      this.selectedImages);
+                                                                  setState(() {
+                                                                    this.editing =
+                                                                        false;
+                                                                  });
+                                                                  Navigator.pop(
+                                                                      context);
+                                                                }
                                                               },
                                                             ),
                                                           )

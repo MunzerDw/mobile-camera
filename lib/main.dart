@@ -42,7 +42,7 @@ class CameraGal extends StatelessWidget {
 }
 
 class Pages extends StatelessWidget {
-  const Pages({Key key}) : super(key: key);
+  Pages({Key key});
 
   @override
   Widget build(BuildContext context) {

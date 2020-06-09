@@ -18,8 +18,6 @@ import 'package:camera/camera.dart';
 import 'package:provider/provider.dart';
 
 class Camera extends StatelessWidget {
-  Camera({Key key});
-
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(
@@ -43,32 +41,28 @@ class Camera extends StatelessWidget {
 }
 
 class TopRow extends StatelessWidget {
-  const TopRow({Key key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
-    return Consumer<GalleriesModel>(builder:
-        (BuildContext context, GalleriesModel galleriesModel, Widget child) {
-      return Expanded(
+    return Consumer2(builder: (BuildContext context,
+        GalleriesModel galleriesModel,
+        ImageDisplayModel imageDisplayModel,
+        Widget child) {
+      return Container(
+        padding: EdgeInsets.fromLTRB(0, 25, 0, 0),
+        color: Colors.black,
         child: Container(
-          color: Colors.black,
-          child: Container(
-            alignment: Alignment.bottomCenter,
-            padding: EdgeInsets.only(left: 10, right: 5, top: 10, bottom: 20),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                galleriesModel.getGalleries().length != 0
-                    ? GalleriesList()
-                    : AddGalleryButton(),
-                galleriesModel.selectedGallery != null &&
-                        galleriesModel.selectedGallery.images.isEmpty
-                    ? Container()
-                    : NewImages()
-              ],
-            ),
+          alignment: Alignment.bottomCenter,
+          padding: EdgeInsets.only(left: 10, right: 5, top: 10, bottom: 20),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              galleriesModel.getGalleries().length != 0
+                  ? GalleriesList()
+                  : AddGalleryButton(),
+              NewImages()
+            ],
           ),
         ),
       );
@@ -77,8 +71,6 @@ class TopRow extends StatelessWidget {
 }
 
 class CameraSection extends StatelessWidget {
-  const CameraSection({Key key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -88,27 +80,36 @@ class CameraSection extends StatelessWidget {
         future: cameraModel.initializeControllerFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            return Container(
-              width: screenWidth,
-              height: screenWidth * 1.4,
-              //Kein plan wieso hier ein border soll.. voll komisch, da ist sonst ein anderer weisser border.
-              decoration: BoxDecoration(
-                  border: Border(
-                      bottom: BorderSide(color: Colors.black, width: 0))),
-              child: FittedBox(
-                fit: BoxFit.cover,
-                child: Container(
-                  width: screenWidth,
-                  height: screenWidth /
-                      cameraModel.cameraController.value.aspectRatio,
-                  child: CameraPreview(
-                      cameraModel.cameraController), // this is my CameraPreview
+            return Expanded(
+              child: Container(
+                width: screenWidth,
+                //Kein plan wieso hier ein border soll.. voll komisch, da ist sonst ein anderer weisser border.
+                decoration: BoxDecoration(
+                    border: Border(
+                        bottom: BorderSide(color: Colors.black, width: 0))),
+                child: FittedBox(
+                  fit: BoxFit.cover,
+                  child: Container(
+                    width: screenWidth,
+                    height: screenWidth /
+                        cameraModel.cameraController.value.aspectRatio,
+                    child: CameraPreview(cameraModel
+                        .cameraController), // this is my CameraPreview
+                  ),
                 ),
               ),
             );
           } else {
             // Otherwise, display a loading indicator
-            return Center(child: CircularProgressIndicator());
+            return Expanded(
+              child: Container(
+                width: screenWidth,
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
+                color: Colors.black,
+              ),
+            );
           }
         },
       );
@@ -117,8 +118,6 @@ class CameraSection extends StatelessWidget {
 }
 
 class BottomRow extends StatelessWidget {
-  const BottomRow({Key key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return Consumer<CameraModel>(
@@ -163,8 +162,6 @@ class BottomRow extends StatelessWidget {
 }
 
 class TakePictureButton extends StatelessWidget {
-  const TakePictureButton({Key key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return Consumer3(builder: (BuildContext context,
@@ -204,9 +201,9 @@ class TakePictureButton extends StatelessWidget {
                   Future.delayed(Duration(milliseconds: 150), () {
                     Navigator.pop(context);
                   });
+                  await cameraModel.cameraController.takePicture(path);
                   imageDisplayModel.addImage(
                       galleriesModel.selectedGallery, path);
-                  await cameraModel.cameraController.takePicture(path);
                   galleriesModel.selectedGallery.addImage(path);
                 } catch (e) {
                   print(e);
@@ -222,8 +219,6 @@ class TakePictureButton extends StatelessWidget {
 }
 
 class AddGalleryDialog extends StatelessWidget {
-  const AddGalleryDialog({Key key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -294,8 +289,6 @@ class AddGalleryDialog extends StatelessWidget {
 }
 
 class GalleriesList extends StatelessWidget {
-  const GalleriesList({Key key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return Consumer<GalleriesModel>(
@@ -328,8 +321,6 @@ class GalleriesList extends StatelessWidget {
 }
 
 class AddGalleryButton extends StatelessWidget {
-  const AddGalleryButton({Key key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -353,44 +344,38 @@ class AddGalleryButton extends StatelessWidget {
 }
 
 class NewImages extends StatelessWidget {
-  const NewImages({Key key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: Consumer2(builder: (BuildContext context,
-          GalleriesModel galleriesModel,
-          ImageDisplayModel imageDisplayModel,
-          Widget child) {
+      child: Consumer<ImageDisplayModel>(builder: (BuildContext context,
+          ImageDisplayModel imageDisplayModel, Widget child) {
         return FittedBox(
-            child: MaterialButton(
-          onPressed: () {
-            imageDisplayModel.setCurrentImageIndex(imageDisplayModel
-                .combineLists(imageDisplayModel.imagesMap.values.toList())
-                .indexOf(imageDisplayModel
-                    .combineLists(imageDisplayModel.imagesMap.values.toList())
-                    .last));
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ImageDisplay(),
-              ),
-            );
-          },
-          child: galleriesModel.selectedGallery == null ||
-                  galleriesModel.selectedGallery.images.isEmpty
-              ? null
-              : Container(
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.transparent,
-                      image: DecorationImage(
-                          image: FileImage(File(imageDisplayModel
-                              .imagesMap.keys.last.images.last)),
-                          fit: BoxFit.cover))),
-        ));
+            child: imageDisplayModel.isEmpty()
+                ? Container(width: 60, height: 60)
+                : MaterialButton(
+                    onPressed: () {
+                      imageDisplayModel.setCurrentImageIndex(
+                          imageDisplayModel.getLastIndex());
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ImageDisplay(),
+                        ),
+                      ).then((onValue) {
+                        imageDisplayModel.showTopBar();
+                      });
+                    },
+                    child: Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.transparent,
+                            image: DecorationImage(
+                                image: FileImage(
+                                    File(imageDisplayModel.getLastImage())),
+                                fit: BoxFit.cover))),
+                  ));
       }),
     );
   }

@@ -9,8 +9,6 @@ import '../../Models/GalleriesModel.dart';
 import '../../Storage.dart';
 
 class Galleries extends StatelessWidget {
-  Galleries({Key key});
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
