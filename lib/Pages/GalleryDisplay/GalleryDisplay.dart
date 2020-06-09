@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:App/Models/CameraModel.dart';
 import 'package:App/Models/GalleriesModel.dart';
+import 'package:App/Models/ImageDisplayModel.dart';
 import 'package:App/Pages/ImageDisplay/ImageDisplay.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -52,6 +54,12 @@ class _GalleryDisplayState extends State<GalleryDisplay> {
   @override
   Widget build(BuildContext context) {
     var galleriesModel = Provider.of<GalleriesModel>(context);
+    var cameraModel = Provider.of<CameraModel>(context);
+    var imageDisplayModel = Provider.of<ImageDisplayModel>(context);
+    const List<Choice> choices = const <Choice>[
+      const Choice(title: 'Delete', icon: Icons.delete),
+      const Choice(title: 'Move', icon: Icons.reply),
+    ];
     return Scaffold(
         backgroundColor: Colors.white,
         body: GestureDetector(
@@ -65,50 +73,15 @@ class _GalleryDisplayState extends State<GalleryDisplay> {
               ListView(
                 padding: const EdgeInsets.fromLTRB(1, 60, 1, 80),
                 children: <Widget>[
-                  Container(
-                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 70),
-                    child: Stack(
-                      //SvgPicture.asset('assets/wave.svg')
-                      children: <Widget>[
-                        Center(
-                            child: Column(
-                          children: <Widget>[
-                            Text(
-                              widget.title,
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w500, fontSize: 30.0),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.all(2),
-                            ),
-                            Text(
-                              galleriesModel
-                                      .getGallery(widget.title)
-                                      .getImages()
-                                      .length
-                                      .toString() +
-                                  " images",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w300, fontSize: 15.0),
-                            )
-                          ],
-                        )),
-                        // Container(
-                        //   color: Colors.red,
-                        //   child: SvgPicture.asset('assets/wave.svg'),
-                        // ),
-                      ],
-                    ),
+                  Header(
+                    title: widget.title,
                   ),
                   galleriesModel.getGallery(widget.title).getImages().length !=
                           0
                       ? GridView.count(
                           shrinkWrap: true,
                           padding: EdgeInsets.fromLTRB(1, 1, 1, 1),
-                          // Create a grid with 2 columns. If you change the scrollDirection to
-                          // horizontal, this produces 2 rows.
                           crossAxisCount: 4,
-                          // Generate 100 widgets that display their index in the List.
                           children: List.generate(
                               galleriesModel
                                   .getGallery(widget.title)
@@ -126,13 +99,16 @@ class _GalleryDisplayState extends State<GalleryDisplay> {
                               },
                               onTap: () {
                                 if (!this.editing) {
+                                  imageDisplayModel.setCurrentImageIndex(index);
+                                  imageDisplayModel.addImages(
+                                      galleriesModel.getGallery(widget.title),
+                                      galleriesModel
+                                          .getGallery(widget.title)
+                                          .getImages());
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => ImageDisplay(
-                                        index: index,
-                                        gallery: widget.title,
-                                      ),
+                                      builder: (context) => ImageDisplay(),
                                     ),
                                   );
                                 } else {
@@ -569,7 +545,9 @@ class _GalleryDisplayState extends State<GalleryDisplay> {
                             ? IconButton(
                                 color: Colors.black,
                                 onPressed: () {
-                                  galleriesModel.goToCamera(widget.title);
+                                  galleriesModel
+                                      .setSelectedGallery(widget.title);
+                                  cameraModel.goToCamera(widget.title);
                                   Navigator.pop(context);
                                 },
                                 iconSize: 30,
@@ -603,7 +581,43 @@ class Choice {
   final IconData icon;
 }
 
-const List<Choice> choices = const <Choice>[
-  const Choice(title: 'Delete', icon: Icons.delete),
-  const Choice(title: 'Move', icon: Icons.reply),
-];
+class Header extends StatelessWidget {
+  final String title;
+  const Header({Key key, this.title}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<GalleriesModel>(builder:
+        (BuildContext context, GalleriesModel galleriesModel, Widget child) {
+      return Container(
+        padding: const EdgeInsets.fromLTRB(0, 0, 0, 70),
+        child: Stack(
+          //SvgPicture.asset('assets/wave.svg')
+          children: <Widget>[
+            Center(
+                child: Column(
+              children: <Widget>[
+                Text(
+                  this.title,
+                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 30.0),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(2),
+                ),
+                Text(
+                  galleriesModel
+                          .getGallery(this.title)
+                          .getImages()
+                          .length
+                          .toString() +
+                      " images",
+                  style: TextStyle(fontWeight: FontWeight.w300, fontSize: 15.0),
+                )
+              ],
+            )),
+          ],
+        ),
+      );
+    });
+  }
+}

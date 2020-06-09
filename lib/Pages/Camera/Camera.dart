@@ -2,8 +2,10 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 import 'package:App/Components/AddGallery/AddGallery.dart';
+import 'package:App/Models/CameraModel.dart';
 import 'package:App/Models/GalleriesModel.dart';
 import 'package:App/Models/GalleryModel.dart';
+import 'package:App/Models/ImageDisplayModel.dart';
 import 'package:App/Pages/Blink/Blink.dart';
 import 'package:App/Pages/Galleries/Galleries.dart';
 import 'package:App/Pages/ImageDisplay/ImageDisplay.dart';
@@ -80,10 +82,10 @@ class CameraSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    return Consumer<GalleriesModel>(builder:
-        (BuildContext context, GalleriesModel galleriesModel, Widget child) {
+    return Consumer<CameraModel>(
+        builder: (BuildContext context, CameraModel cameraModel, Widget child) {
       return FutureBuilder<void>(
-        future: galleriesModel.initializeControllerFuture,
+        future: cameraModel.initializeControllerFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             return Container(
@@ -98,9 +100,9 @@ class CameraSection extends StatelessWidget {
                 child: Container(
                   width: screenWidth,
                   height: screenWidth /
-                      galleriesModel.cameraController.value.aspectRatio,
-                  child: CameraPreview(galleriesModel
-                      .cameraController), // this is my CameraPreview
+                      cameraModel.cameraController.value.aspectRatio,
+                  child: CameraPreview(
+                      cameraModel.cameraController), // this is my CameraPreview
                 ),
               ),
             );
@@ -119,8 +121,8 @@ class BottomRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<GalleriesModel>(builder:
-        (BuildContext context, GalleriesModel galleriesModel, Widget child) {
+    return Consumer<CameraModel>(
+        builder: (BuildContext context, CameraModel cameraModel, Widget child) {
       return Container(
           padding: EdgeInsets.only(top: 25, bottom: 25, left: 35, right: 35),
           alignment: Alignment.center,
@@ -136,7 +138,7 @@ class BottomRow extends StatelessWidget {
                 ),
                 color: Colors.white,
                 onPressed: () {
-                  galleriesModel.pageViewController.animateToPage(0,
+                  cameraModel.pageViewController.animateToPage(0,
                       duration: Duration(milliseconds: 300),
                       curve: Curves.easeIn);
                 },
@@ -149,7 +151,7 @@ class BottomRow extends StatelessWidget {
                 ),
                 color: Colors.white,
                 onPressed: () {
-                  galleriesModel.pageViewController.animateToPage(2,
+                  cameraModel.pageViewController.animateToPage(2,
                       duration: Duration(milliseconds: 300),
                       curve: Curves.easeIn);
                 },
@@ -165,8 +167,11 @@ class TakePictureButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<GalleriesModel>(builder:
-        (BuildContext context, GalleriesModel galleriesModel, Widget child) {
+    return Consumer3(builder: (BuildContext context,
+        GalleriesModel galleriesModel,
+        CameraModel cameraModel,
+        ImageDisplayModel imageDisplayModel,
+        Widget child) {
       return Container(
           width: 86,
           height: 86,
@@ -189,7 +194,7 @@ class TakePictureButton extends StatelessWidget {
                     galleriesModel.selectedGallery.name +
                     '/${DateTime.now()}.png';
                 try {
-                  await galleriesModel.initializeControllerFuture;
+                  await cameraModel.initializeControllerFuture;
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -199,7 +204,9 @@ class TakePictureButton extends StatelessWidget {
                   Future.delayed(Duration(milliseconds: 150), () {
                     Navigator.pop(context);
                   });
-                  await galleriesModel.cameraController.takePicture(path);
+                  imageDisplayModel.addImage(
+                      galleriesModel.selectedGallery, path);
+                  await cameraModel.cameraController.takePicture(path);
                   galleriesModel.selectedGallery.addImage(path);
                 } catch (e) {
                   print(e);
@@ -351,19 +358,22 @@ class NewImages extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: Consumer<GalleriesModel>(builder:
-          (BuildContext context, GalleriesModel galleriesModel, Widget child) {
+      child: Consumer2(builder: (BuildContext context,
+          GalleriesModel galleriesModel,
+          ImageDisplayModel imageDisplayModel,
+          Widget child) {
         return FittedBox(
             child: MaterialButton(
           onPressed: () {
+            imageDisplayModel.setCurrentImageIndex(imageDisplayModel
+                .combineLists(imageDisplayModel.imagesMap.values.toList())
+                .indexOf(imageDisplayModel
+                    .combineLists(imageDisplayModel.imagesMap.values.toList())
+                    .last));
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ImageDisplay(
-                  index: galleriesModel.selectedGallery.images.isEmpty
-                      ? 0
-                      : galleriesModel.selectedGallery.images.length - 1,
-                ),
+                builder: (context) => ImageDisplay(),
               ),
             );
           },
@@ -377,8 +387,8 @@ class NewImages extends StatelessWidget {
                       shape: BoxShape.circle,
                       color: Colors.transparent,
                       image: DecorationImage(
-                          image: FileImage(
-                              File(galleriesModel.selectedGallery.images.last)),
+                          image: FileImage(File(imageDisplayModel
+                              .imagesMap.keys.last.images.last)),
                           fit: BoxFit.cover))),
         ));
       }),

@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:App/Models/CameraModel.dart';
+import 'package:App/Models/ImageDisplayModel.dart';
 import 'package:App/Pages/Galleries/Galleries.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
@@ -23,25 +25,32 @@ class CameraGal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<GalleriesModel>(
-        create: (context) => GalleriesModel(),
-        child: MaterialApp(
-            title: 'Camera Gal',
-            initialRoute: '/',
-            routes: {'/': (context) => PagesController()}));
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<GalleriesModel>(
+            create: (context) => GalleriesModel()),
+        ChangeNotifierProvider<CameraModel>(create: (context) => CameraModel()),
+        ChangeNotifierProvider<ImageDisplayModel>(
+            create: (context) => ImageDisplayModel())
+      ],
+      child: MaterialApp(
+          title: 'Camera Gal',
+          initialRoute: '/',
+          routes: {'/': (context) => Pages()}),
+    );
   }
 }
 
-class PagesController extends StatelessWidget {
-  const PagesController({Key key}) : super(key: key);
+class Pages extends StatelessWidget {
+  const Pages({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<GalleriesModel>(builder:
-        (BuildContext context, GalleriesModel galleriesModel, Widget child) {
+    return Consumer<CameraModel>(
+        builder: (BuildContext context, CameraModel cameraModel, Widget child) {
       return PageView(
         physics: BouncingScrollPhysics(),
-        controller: galleriesModel.pageViewController,
+        controller: cameraModel.pageViewController,
         children: <Widget>[
           Galleries(),
           Camera(),
