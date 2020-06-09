@@ -83,8 +83,6 @@ class Choice {
 }
 
 class Header extends StatelessWidget {
-  const Header({Key key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return Consumer2(builder: (BuildContext context,
@@ -121,8 +119,6 @@ class Header extends StatelessWidget {
 }
 
 class Images extends StatelessWidget {
-  const Images({Key key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return Consumer2(builder: (BuildContext context,
@@ -292,7 +288,7 @@ void deleteAlert(BuildContext context) {
                           imageDisplayModel.removeImages(
                               galleryDisplayModel.currentGallery,
                               galleryDisplayModel.selectedImages);
-                          galleryDisplayModel.setEditing(false);
+                          galleryDisplayModel.clearSelectedImages();
                           Navigator.pop(context);
                         }
                       },
@@ -403,6 +399,7 @@ void moveAlert(BuildContext context) {
                                 imageDisplayModel.removeImages(
                                     galleryDisplayModel.currentGallery,
                                     galleryDisplayModel.selectedImages);
+                                galleryDisplayModel.clearSelectedImages();
                                 Navigator.pop(context);
                               }
                             }),
@@ -418,8 +415,6 @@ void moveAlert(BuildContext context) {
 }
 
 class ActionMenu extends StatelessWidget {
-  const ActionMenu({Key key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return Consumer3(builder: (BuildContext context,
@@ -480,12 +475,11 @@ class ActionMenu extends StatelessWidget {
 }
 
 class SelectAllButton extends StatelessWidget {
-  const SelectAllButton({Key key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return Consumer<GalleryDisplayModel>(builder: (BuildContext context,
         GalleryDisplayModel galleryDisplayModel, Widget child) {
+      print(galleryDisplayModel.selectedImages.length);
       return IconButton(
         color: galleryDisplayModel.selectedImages.length ==
                     galleryDisplayModel.currentGallery.images.length &&
@@ -508,8 +502,6 @@ class SelectAllButton extends StatelessWidget {
 }
 
 class GoToCameraButton extends StatelessWidget {
-  const GoToCameraButton({Key key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return Consumer3(builder: (BuildContext context,
@@ -534,8 +526,6 @@ class GoToCameraButton extends StatelessWidget {
 }
 
 class EditButton extends StatelessWidget {
-  const EditButton({Key key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return Consumer<GalleryDisplayModel>(builder: (BuildContext context,
