@@ -151,64 +151,7 @@ class GalleriesCardState extends State<GalleriesCard> {
                                     editing = !editing;
                                   });
                                 } else {
-                                  showDialog(
-                                      context: context,
-                                      builder: (_) => AlertDialog(
-                                          title: Column(
-                                            children: <Widget>[
-                                              Container(
-                                                decoration: BoxDecoration(
-                                                  border: Border.all(
-                                                      width: 4.0,
-                                                      color:
-                                                          Colors.orangeAccent),
-                                                  shape: BoxShape.circle,
-                                                ),
-                                                padding: EdgeInsets.all(20),
-                                                margin: EdgeInsets.only(
-                                                    bottom: 20.0),
-                                                child: Icon(
-                                                  Icons.warning,
-                                                  color: Colors.orangeAccent,
-                                                  size: 50,
-                                                ),
-                                              ),
-                                              Text(
-                                                "Gallery name is empty or already exists",
-                                                textAlign: TextAlign.center,
-                                                style: TextStyle(
-                                                    color: Colors.orangeAccent),
-                                              ),
-                                            ],
-                                          ),
-                                          content: Container(
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.spaceAround,
-                                              children: <Widget>[
-                                                Container(
-                                                  child: RaisedButton(
-                                                    shape: RoundedRectangleBorder(
-                                                        borderRadius:
-                                                            new BorderRadius
-                                                                .circular(5.0)),
-                                                    child: Text(
-                                                      "Ok",
-                                                      style: TextStyle(
-                                                          color: Colors.white),
-                                                    ),
-                                                    color: Colors.grey,
-                                                    onPressed: () {
-                                                      Navigator.pop(context);
-                                                    },
-                                                  ),
-                                                )
-                                              ],
-                                            ),
-                                          ),
-                                          shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(8.0))));
+                                  alertGalleryName(context);
                                 }
                               } else {
                                 setState(() {
@@ -220,10 +163,10 @@ class GalleriesCardState extends State<GalleriesCard> {
                           onPressed: () {},
                         );
                       }),
-                      Consumer2(builder: (BuildContext context,
-                          GalleriesModel galleriesModel,
-                          ImageDisplayModel imageDisplayModel,
-                          Widget child) {
+                      Consumer<ImageDisplayModel>(builder:
+                          (BuildContext context,
+                              ImageDisplayModel imageDisplayModel,
+                              Widget child) {
                         return MaterialButton(
                           padding: EdgeInsets.all(1),
                           splashColor: Colors.transparent,
@@ -257,4 +200,55 @@ class GalleriesCardState extends State<GalleriesCard> {
           );
         }));
   }
+}
+
+void alertGalleryName(BuildContext context) {
+  showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+          title: Column(
+            children: <Widget>[
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(width: 4.0, color: Colors.orangeAccent),
+                  shape: BoxShape.circle,
+                ),
+                padding: EdgeInsets.all(20),
+                margin: EdgeInsets.only(bottom: 20.0),
+                child: Icon(
+                  Icons.warning,
+                  color: Colors.orangeAccent,
+                  size: 50,
+                ),
+              ),
+              Text(
+                "Gallery name is empty or already exists",
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.orangeAccent),
+              ),
+            ],
+          ),
+          content: Container(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: <Widget>[
+                Container(
+                  child: RaisedButton(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: new BorderRadius.circular(5.0)),
+                    child: Text(
+                      "Ok",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    color: Colors.grey,
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                )
+              ],
+            ),
+          ),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.0))));
 }
