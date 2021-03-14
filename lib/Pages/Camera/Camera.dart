@@ -24,11 +24,10 @@ class Camera extends StatelessWidget {
     );
     return Scaffold(
       body: Column(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           TopRow(),
-          CameraSection(),
+          Expanded(child: CameraSection()),
           BottomRow(),
         ],
       ),
@@ -76,35 +75,14 @@ class CameraSection extends StatelessWidget {
         future: cameraModel.initializeControllerFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            return Expanded(
-              child: Container(
-                width: screenWidth,
-                //Kein plan wieso hier ein border soll.. voll komisch, da ist sonst ein anderer weisser border.
-                decoration: BoxDecoration(
-                    border: Border(
-                        bottom: BorderSide(color: Colors.black, width: 0))),
-                child: FittedBox(
-                  fit: BoxFit.cover,
-                  child: Container(
-                    width: screenWidth,
-                    height: screenWidth /
-                        cameraModel.cameraController.value.aspectRatio,
-                    child: CameraPreview(cameraModel
-                        .cameraController), // this is my CameraPreview
-                  ),
-                ),
-              ),
-            );
+            return CameraPreview(cameraModel.cameraController); // this is my CameraPreview
           } else {
             // Otherwise, display a loading indicator
-            return Expanded(
-              child: Container(
-                width: screenWidth,
+            return Container(
                 child: Center(
                   child: CircularProgressIndicator(),
                 ),
                 color: Colors.black,
-              ),
             );
           }
         },
