@@ -1,4 +1,4 @@
-# Camera App
+# Mobile Camera App
 
 This is a personal project to learn mobile development with Flutter.
 
