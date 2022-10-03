@@ -1,16 +1,5 @@
-# camerapp
+# Camera App
 
-A new Flutter project.
+This is a personal project to learn mobile development with Flutter.
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+My idea is to have a camera app that lets you select the target album of the image you are about to take. This enables users to have faster and better sorted pictures. For instance, if you want to take a picture of a school note you can directly select the target album of the specific subjet. 
