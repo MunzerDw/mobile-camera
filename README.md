@@ -6,7 +6,9 @@ My idea is to have a camera app that lets you select the target album of the ima
 
 ## Screenshots
 
-<img src="https://github.com/MunzerDw/mobile-camera/blob/develop/docs/images/main.jpg" width="200" height="400" />
-<img src="https://github.com/MunzerDw/mobile-camera/blob/develop/docs/images/galleries.jpg" width="200" height="400" />
-<img src="https://github.com/MunzerDw/mobile-camera/blob/develop/docs/images/add_gallery.jpg" width="200" height="400" />
-<img src="https://github.com/MunzerDw/mobile-camera/blob/develop/docs/images/gallery.jpg" width="200" height="400" />
+<div>
+  <img align="top" src="https://github.com/MunzerDw/mobile-camera/blob/develop/docs/images/main.jpg" width="200" height="400" />
+  <img align="top" src="https://github.com/MunzerDw/mobile-camera/blob/develop/docs/images/galleries.jpg" width="200" height="400" />
+  <img align="top" src="https://github.com/MunzerDw/mobile-camera/blob/develop/docs/images/add_gallery.jpg" width="200" height="400" />
+  <img align="top" src="https://github.com/MunzerDw/mobile-camera/blob/develop/docs/images/gallery.jpg" width="200" height="400" />
+<div>
